@@ -5,7 +5,7 @@ tags:
   - WorkBuddy
   - 导入记录
 created: 2026-07-30
-updated: 2026-08-04
+updated: 2026-08-07
 ---
 
 # WorkBuddy 沉淀
@@ -59,6 +59,13 @@ WorkBuddy 成果索引中识别到 34 份面向用户的 Markdown 成果；其�
 - `C1-②_AI帮老板找客户_口播通稿.md` 和 `C1-③_AI帮老板盯风险_口播通稿.md` 均为 v1.0 初稿、待用户确认，未导入；
 - 协议草案仍有待填写项，未列入最终确认版；
 - 本机缺少 LibreOffice，Word 文件完成了结构和文字提取，但未通过页面渲染检查。
+
+## 2026-08-07 增量同步
+
+- 创建 [[Templates/每日核心沉淀模板]]：标准化每日沉淀模板，YAML frontmatter + 7 个核心章节
+- 配置 Git 仓库 `cherrylee08/lockmode`，首次 push 68 个文件
+- 创建 WorkBuddy 自动化任务（每日 18:00）：自动读取 WorkBuddy memory → 生成每日沉淀 → 更新索引 → Git push
+- 配置 `.gitignore`，排除 workspace.json 和插件缓存等敏感文件
 
 ---
 
