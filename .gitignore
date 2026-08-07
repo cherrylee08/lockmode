@@ -1,0 +1,19 @@
+# Obsidian workspace (personal layout)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Sync cache
+.obsidian/sync.json
+.obsidian/sync-log.json
+
+# Plugin-specific caches
+.obsidian/plugins/*/data.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
