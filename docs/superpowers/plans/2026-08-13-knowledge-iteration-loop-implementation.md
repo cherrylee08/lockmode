@@ -307,6 +307,7 @@ class DashboardData:
 def collect_dashboard(root: Path, today: date) -> DashboardData: ...
 def render_dashboard(data: DashboardData, generated: str) -> str: ...
 def write_dashboard(root: Path, output: Path, generated: str) -> None: ...
+def check_dashboard(root: Path, output: Path, generated: str) -> bool: ...
 def main(argv: list[str] | None = None) -> int: ...
 ```
 
@@ -321,6 +322,7 @@ def test_counts_only_waiting_pending_queue_rows(): ...
 def test_render_marks_unavailable_metrics_instead_of_inventing_values(): ...
 def test_write_refuses_raw_formal_and_existing_non_managed_targets(): ...
 def test_write_allows_only_exact_managed_dashboard_path(): ...
+def test_check_compares_in_memory_without_writing_files(): ...
 ```
 
 Use a temporary vault containing:
@@ -371,6 +373,8 @@ The renderer must include these headings in this order:
 For metrics not derivable from current files, render `暂不可计算：缺少本周复盘记录` rather than `0`.
 
 `write_dashboard` must resolve paths before writing. It may overwrite only `root / "00-系统" / "知识迭代驾驶舱.md"`; it must reject any path under `30-资源/raw`, any formal framework directory, any existing non-managed file, and any path outside `root`.
+
+`check_dashboard` must render the expected content in memory and compare it with the exact managed dashboard path. CLI `--check` returns `0` for an exact match and `1` for drift; it must not create, overwrite, or delete any file.
 
 - [ ] **Step 4: Generate the live dashboard**
 
@@ -597,17 +601,15 @@ Run:
 
 Expected: all tests pass; validator exits `0` without issues.
 
-- [ ] **Step 2: Regenerate and compare the managed dashboard**
+- [ ] **Step 2: Check the managed dashboard without writing a temporary file**
 
-Generate to a temporary file outside the vault:
+Run the read-only in-memory comparison:
 
 ```powershell
-$tmp = Join-Path $env:TEMP 'knowledge-iteration-dashboard.md'
-& 'C:\Users\lee\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B scripts/kb_dashboard.py 'E:\李大谱的小脑瓜' --output $tmp --date 2026-08-13
-Compare-Object (Get-Content -LiteralPath $tmp -Encoding UTF8) (Get-Content -LiteralPath '00-系统/知识迭代驾驶舱.md' -Encoding UTF8)
+& 'C:\Users\lee\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B scripts/kb_dashboard.py 'E:\李大谱的小脑瓜' --check --date 2026-08-13
 ```
 
-Expected: no comparison output. Remove only the exact temporary file after comparison.
+Expected: exit `0` with `dashboard is current`; no file is created, overwritten, or deleted. If content has drifted, exit `1` with `dashboard is stale`.
 
 - [ ] **Step 3: Verify safety and scope**
 
@@ -637,7 +639,7 @@ Create `docs/superpowers/specs/2026-08-13-knowledge-iteration-loop-acceptance.md
 | 可信 raw 示例无预设域名 | triggers 为空 | 通过/不通过 |
 | raw 不被生成器覆盖 | 写入保护测试 | 通过/不通过 |
 | 已消化输入最低标准 | 模板与字段校验 | 通过/不通过 |
-| 驾驶舱可确定性重现 | 临时文件逐行比较 | 通过/不通过 |
+| 驾驶舱可确定性重现 | `--check` 内存比较 | 通过/不通过 |
 | 无证据指标不造数 | 驾驶舱文本 | 通过/不通过 |
 | 用户确认边界有效 | 代码、手册与待确认队列 | 通过/不通过 |
 ```
