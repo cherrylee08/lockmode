@@ -157,6 +157,10 @@ class MigrationAuditTests(unittest.TestCase):
         suggestion = classify_note(Path("客户项目推进.md"), "下一步：验证这个想法")
         self.assertEqual("project", suggestion.suggested_type)
 
+    def test_project_entity_in_filename_combines_with_progress_in_body(self) -> None:
+        suggestion = classify_note(Path("虎客科技项目想法.md"), "正在推进，下一步访谈")
+        self.assertEqual("project", suggestion.suggested_type)
+
     def test_customer_delivery_instructions_are_asset_candidate(self) -> None:
         suggestion = classify_note(Path("客户交付说明.md"), "最终交付说明")
         self.assertEqual("asset_candidate", suggestion.suggested_type)

@@ -93,8 +93,10 @@ def classify_note(path: Path, text: str) -> Suggestion:
     if "index" in name.lower() or "每日核心沉淀" in name or "日结" in corpus or "知识库总索引" in name:
         return _suggest(source, "review_required", "low", "Index 或日结类页面可能应保留为系统入口，需人工复核")
 
-    active_project_score = _score(name.lower(), ("虎客科技", "玉泉木业", "玉山木业", "客户项目", "项目推进", "进度", "下一步", "待办"))
-    if active_project_score >= 2:
+    project_entity_score = _score(name.lower(), ("虎客科技", "玉泉木业", "玉山木业", "客户项目", "项目"))
+    project_action_score = _score(corpus, ("推进", "进度", "下一步", "待办", "访谈"))
+    filename_active_score = _score(name.lower(), ("项目推进", "进度", "下一步", "待办"))
+    if (project_entity_score > 0 and project_action_score > 0) or filename_active_score >= 2:
         return _suggest(source, "project", "high", "活跃客户/项目与进度或下一步信号明确")
 
     # Strong filename signals are explicit user-facing labels and take priority
