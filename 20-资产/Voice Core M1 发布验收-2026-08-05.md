@@ -7,13 +7,13 @@ created: 2026-08-05
 updated: 2026-08-13
 owner: 李大谱
 confidence: confirmed
-source_refs: []
+source_refs: ["E:\\李大谱的工作台\\docs\\voice-core-acceptance.md"]
 related: ["[[个人AI工作台 Index]]"]
 review_date: 2026-09-13
 asset_type: 发布验收记录
 version: M1
 approved_by: 李大谱
-derived_from: []
+derived_from: ["Voice Core M1 发布验收-2026-08-05.md"]
 tags: [VoiceCore, 个人AI工作台, 发布验收, 桌面应用]
 ---
 

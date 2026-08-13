@@ -7,13 +7,13 @@ created: 2026-07-31
 updated: 2026-08-13
 owner: 李大谱
 confidence: confirmed
-source_refs: []
+source_refs: ["C:\\Users\\lee\\WorkBuddy\\企业工作内容\\企业服务简介（含定价）.docx", "C:\\Users\\lee\\WorkBuddy\\企业工作内容\\洞见创意-企业服务简介.docx"]
 related: ["[[AI企业部署与创业 Index]]"]
 review_date: 2026-08-20
 asset_type: 服务与报价方案
 version: 参考版
 approved_by: 李大谱
-derived_from: []
+derived_from: ["企业AI服务体系与参考报价.md"]
 aliases: [企业AI服务方案, 企业AI报价体系]
 tags: [AI落地, 企业服务, 报价]
 source_updated: 2026-07-31
