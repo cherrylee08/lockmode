@@ -11,6 +11,7 @@ import argparse
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
+import sys
 
 
 EXCLUDED_TOP_LEVEL = frozenset(
@@ -142,6 +143,16 @@ def scan_legacy_notes(root: Path) -> list[Suggestion]:
     return suggestions
 
 
+def _legacy_source_paths(root: Path) -> set[Path]:
+    """Return resolved root-level Markdown sources that this audit may read."""
+    root = root.resolve()
+    return {
+        path.resolve()
+        for path in root.glob("*.md")
+        if path.name != "AGENTS.md" and not is_excluded_path(path.relative_to(root))
+    }
+
+
 def render_report(items: list[Suggestion], generated: str) -> str:
     """Render a deterministic, human-reviewable Markdown migration report."""
     lines = [
@@ -196,10 +207,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--date", required=True, help="report date in YYYY-MM-DD format")
     arguments = parser.parse_args(argv)
 
-    items = scan_legacy_notes(arguments.root)
+    root = arguments.root.resolve()
     output = arguments.output
     if not output.is_absolute():
-        output = arguments.root / output
+        output = root / output
+    output = output.resolve()
+    if output in _legacy_source_paths(root):
+        print(
+            f"Refusing to overwrite scanned legacy Markdown source: {output}",
+            file=sys.stderr,
+        )
+        return 2
+
+    items = scan_legacy_notes(root)
     output.write_text(render_report(items, arguments.date), encoding="utf-8")
     print(f"Generated {output} with {len(items)} read-only suggestions.")
     return 0
