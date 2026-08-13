@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
-from scripts.kb_validate import validate_vault
+from scripts.kb_validate import main, validate_vault
 
 
 COMMON_FIELDS = """\
@@ -63,6 +65,19 @@ class ValidateVaultTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "INVALID_TYPE" for issue in issues))
 
+    def test_invalid_confidence_is_error(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "10-项目/测试笔记.md",
+                COMMON_FIELDS.replace("confidence: confirmed", "confidence: unknown"),
+            )
+
+            issues = validate_vault(root)
+
+        self.assertTrue(any(issue.code == "INVALID_CONFIDENCE" for issue in issues))
+
     def test_duplicate_id_is_error(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
@@ -95,6 +110,41 @@ class ValidateVaultTests(unittest.TestCase):
             issues = validate_vault(root)
 
         self.assertEqual([], [issue for issue in issues if issue.level == "ERROR"])
+
+    def test_framework_indexes_are_not_parsed_as_formal_notes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            for directory in (
+                "10-项目",
+                "20-资产",
+                "30-资源",
+                "40-辅助",
+                "50-灵感",
+                "60-Skill",
+            ):
+                self.write_note(root, f"{directory}/Index.md", "title: 导航\n")
+
+            issues = validate_vault(root)
+
+        self.assertEqual([], [issue for issue in issues if issue.level == "ERROR"])
+
+    def test_cli_returns_one_and_prints_stable_tsv_for_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "10-项目/测试笔记.md",
+                COMMON_FIELDS.replace("owner: 李大谱\n", ""),
+            )
+            output = StringIO()
+            with redirect_stdout(output):
+                exit_code = main([str(root)])
+
+        self.assertEqual(1, exit_code)
+        self.assertEqual(
+            "ERROR\tMISSING_REQUIRED_FIELD\t10-项目/测试笔记.md\tmissing required field: owner\n",
+            output.getvalue(),
+        )
 
 
 if __name__ == "__main__":
