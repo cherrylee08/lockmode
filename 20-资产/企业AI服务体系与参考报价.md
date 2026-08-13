@@ -1,13 +1,21 @@
 ---
+id: KB-ASSET-20260813-005
 title: 企业 AI 服务体系与参考报价
-aliases:
-  - 企业AI服务方案
-  - 企业AI报价体系
-tags:
-  - AI落地
-  - 企业服务
-  - 报价
-status: 参考版，待统一定价与客户验证
+type: asset
+status: draft
+created: 2026-07-31
+updated: 2026-08-13
+owner: 李大谱
+confidence: confirmed
+source_refs: []
+related: ["[[AI企业部署与创业 Index]]"]
+review_date: 2026-08-20
+asset_type: 服务与报价方案
+version: 参考版
+approved_by: 李大谱
+derived_from: []
+aliases: [企业AI服务方案, 企业AI报价体系]
+tags: [AI落地, 企业服务, 报价]
 source_updated: 2026-07-31
 synced: 2026-08-04
 ---

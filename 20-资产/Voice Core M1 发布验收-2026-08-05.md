@@ -1,12 +1,20 @@
 ---
+id: KB-ASSET-20260813-004
 title: Voice Core M1 发布验收 2026-08-05
-tags:
-  - VoiceCore
-  - 个人AI工作台
-  - 发布验收
-  - 桌面应用
+type: asset
+status: active
 created: 2026-08-05
-updated: 2026-08-05
+updated: 2026-08-13
+owner: 李大谱
+confidence: confirmed
+source_refs: []
+related: ["[[个人AI工作台 Index]]"]
+review_date: 2026-09-13
+asset_type: 发布验收记录
+version: M1
+approved_by: 李大谱
+derived_from: []
+tags: [VoiceCore, 个人AI工作台, 发布验收, 桌面应用]
 ---
 
 # Voice Core M1 发布验收 2026-08-05
