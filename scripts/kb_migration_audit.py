@@ -93,13 +93,17 @@ def classify_note(path: Path, text: str) -> Suggestion:
     if "index" in name.lower() or "每日核心沉淀" in name or "日结" in corpus or "知识库总索引" in name:
         return _suggest(source, "review_required", "low", "Index 或日结类页面可能应保留为系统入口，需人工复核")
 
+    active_project_score = _score(name.lower(), ("虎客科技", "玉泉木业", "玉山木业", "客户项目", "项目推进", "进度", "下一步", "待办"))
+    if active_project_score >= 2:
+        return _suggest(source, "project", "high", "活跃客户/项目与进度或下一步信号明确")
+
     # Strong filename signals are explicit user-facing labels and take priority
     # over incidental keywords in a note body.
     if any(keyword in name for keyword in ("想法", "机会", "思路")):
         return _suggest(source, "inspiration", "high", "文件名明确标注想法、机会或思路，优先保留为待验证灵感")
     if any(keyword in name for keyword in ("方法论", "评分体系", "工作流", "标准化流程")):
         return _suggest(source, "skill_candidate", "high", "文件名明确标注方法论、评分体系或工作流，作为 Skill 候选")
-    if any(keyword in name for keyword in ("终稿", "确认版", "参考报价", "报价", "档案", "发布验收")):
+    if any(keyword in name for keyword in ("终稿", "确认版", "参考报价", "报价", "档案", "发布验收", "交付说明")):
         return _suggest(source, "asset_candidate", "high", "文件名明确标注终稿、确认、报价或交付，作为资产候选")
 
     scores = {
@@ -151,6 +155,18 @@ def _legacy_source_paths(root: Path) -> set[Path]:
         for path in root.glob("*.md")
         if path.name != "AGENTS.md" and not is_excluded_path(path.relative_to(root))
     }
+
+
+def _managed_report_path(root: Path, generated: str) -> Path:
+    return (root / "00-系统" / f"现有文档迁移建议-{generated}.md").resolve()
+
+
+def _is_protected_output(root: Path, output: Path) -> bool:
+    try:
+        relative = output.relative_to(root)
+    except ValueError:
+        return False
+    return is_excluded_path(relative) or (relative.parts and relative.parts[0] == "00-系统")
 
 
 def render_report(items: list[Suggestion], generated: str) -> str:
@@ -212,7 +228,10 @@ def main(argv: list[str] | None = None) -> int:
     if not output.is_absolute():
         output = root / output
     output = output.resolve()
-    if output in _legacy_source_paths(root):
+    managed_report = _managed_report_path(root, arguments.date)
+    protected = _is_protected_output(root, output)
+    allowed_managed_update = output == managed_report
+    if output in _legacy_source_paths(root) or (protected and not allowed_managed_update) or (output.exists() and not allowed_managed_update):
         print(
             f"Refusing to overwrite scanned legacy Markdown source: {output}",
             file=sys.stderr,

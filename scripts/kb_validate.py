@@ -32,6 +32,7 @@ FORMAL_DIRECTORIES = {
     "50-灵感": "inspiration",
     "60-Skill": "skill",
 }
+LIST_FIELDS = ("source_refs", "related")
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,10 @@ def parse_frontmatter(path: Path) -> dict[str, object]:
             continue
         key, value = line.split(":", 1)
         key = key.strip()
+        if key and key in metadata:
+            duplicates = metadata.setdefault("__duplicate_keys__", [])
+            if isinstance(duplicates, list):
+                duplicates.append(key)
         if key:
             metadata[key] = _parse_value(value)
     return metadata
@@ -104,6 +109,11 @@ def validate_note(path: Path, root: Path) -> list[Issue]:
     metadata = parse_frontmatter(path)
     relative_path = _relative_path(path, root)
     issues: list[Issue] = []
+
+    duplicate_keys = metadata.get("__duplicate_keys__", [])
+    if isinstance(duplicate_keys, list):
+        for key in duplicate_keys:
+            issues.append(Issue("ERROR", relative_path, "DUPLICATE_FRONTMATTER_KEY", f"duplicate frontmatter key: {key}"))
 
     for field in REQUIRED_COMMON_FIELDS:
         if field not in metadata or metadata[field] is None or metadata[field] == "":
@@ -133,6 +143,9 @@ def validate_note(path: Path, root: Path) -> list[Issue]:
                 "confidence must be confirmed, inferred, or unverified",
             )
         )
+    for field in LIST_FIELDS:
+        if field in metadata and not isinstance(metadata[field], list):
+            issues.append(Issue("ERROR", relative_path, "INVALID_LIST_FIELD", f"{field} must be a bracket list"))
     return issues
 
 
@@ -183,7 +196,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("root", nargs="?", default=".", type=Path, help="vault root directory")
     arguments = parser.parse_args(argv)
 
-    issues = validate_vault(arguments.root)
+    root = arguments.root.resolve()
+    issues: list[Issue] = []
+    if not root.is_dir():
+        issues.append(Issue("ERROR", ".", "INVALID_VAULT_ROOT", "vault root does not exist or is not a directory"))
+    else:
+        for directory in FORMAL_DIRECTORIES:
+            if not (root / directory).is_dir():
+                issues.append(Issue("ERROR", directory, "MISSING_FRAMEWORK_DIRECTORY", f"missing framework directory: {directory}"))
+        issues.extend(validate_vault(root))
+    issues = sorted(issues, key=lambda issue: (issue.path, issue.level, issue.code, issue.message))
     for issue in issues:
         print(f"{issue.level}\t{issue.code}\t{issue.path}\t{issue.message}")
     return 1 if any(issue.level == "ERROR" for issue in issues) else 0

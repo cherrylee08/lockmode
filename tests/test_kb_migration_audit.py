@@ -112,6 +112,55 @@ class MigrationAuditTests(unittest.TestCase):
             self.assertIn("Refusing to overwrite", stderr.getvalue())
             self.assertEqual(original, source.read_bytes())
 
+    def test_cli_refuses_raw_and_formal_framework_output_targets(self) -> None:
+        for relative in ("30-资源/raw/evidence.md", "10-项目/customer.md"):
+            with self.subTest(relative=relative), tempfile.TemporaryDirectory() as temporary_directory:
+                root = Path(temporary_directory)
+                target = root / relative
+                target.parent.mkdir(parents=True)
+                original = b"ORIGINAL"
+                target.write_bytes(original)
+
+                exit_code = main([str(root), "--output", relative, "--date", "2026-08-13"])
+
+                self.assertEqual(2, exit_code)
+                self.assertEqual(original, target.read_bytes())
+
+    def test_cli_refuses_any_existing_non_managed_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            target = root / "existing.txt"
+            original = b"DO NOT OVERWRITE"
+            target.write_bytes(original)
+
+            exit_code = main([str(root), "--output", str(target), "--date", "2026-08-13"])
+
+            self.assertEqual(2, exit_code)
+            self.assertEqual(original, target.read_bytes())
+
+    def test_cli_may_update_exact_managed_report_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            system = root / "00-系统"
+            system.mkdir()
+            target = system / "现有文档迁移建议-2026-08-13.md"
+            target.write_text("old report", encoding="utf-8")
+
+            exit_code = main(
+                [str(root), "--output", "00-系统/现有文档迁移建议-2026-08-13.md", "--date", "2026-08-13"]
+            )
+
+            self.assertEqual(0, exit_code)
+            self.assertIn("# 现有文档迁移建议", target.read_text(encoding="utf-8"))
+
+    def test_active_project_signal_precedes_inspiration(self) -> None:
+        suggestion = classify_note(Path("客户项目推进.md"), "下一步：验证这个想法")
+        self.assertEqual("project", suggestion.suggested_type)
+
+    def test_customer_delivery_instructions_are_asset_candidate(self) -> None:
+        suggestion = classify_note(Path("客户交付说明.md"), "最终交付说明")
+        self.assertEqual("asset_candidate", suggestion.suggested_type)
+
 
 if __name__ == "__main__":
     unittest.main()

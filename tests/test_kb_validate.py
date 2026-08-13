@@ -25,6 +25,10 @@ review_date: 2026-08-20
 
 
 class ValidateVaultTests(unittest.TestCase):
+    def create_framework_skeleton(self, root: Path) -> None:
+        for directory in ("10-项目", "20-资产", "30-资源", "40-辅助", "50-灵感", "60-Skill"):
+            (root / directory).mkdir(parents=True, exist_ok=True)
+
     def write_note(self, root: Path, relative_path: str, frontmatter: str) -> None:
         path = root / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -42,6 +46,7 @@ class ValidateVaultTests(unittest.TestCase):
     def test_missing_required_field_is_error(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
+            self.create_framework_skeleton(root)
             self.write_note(
                 root,
                 "10-项目/测试笔记.md",
@@ -131,6 +136,7 @@ class ValidateVaultTests(unittest.TestCase):
     def test_cli_returns_one_and_prints_stable_tsv_for_errors(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
+            self.create_framework_skeleton(root)
             self.write_note(
                 root,
                 "10-项目/测试笔记.md",
@@ -145,6 +151,37 @@ class ValidateVaultTests(unittest.TestCase):
             "ERROR\tMISSING_REQUIRED_FIELD\t10-项目/测试笔记.md\tmissing required field: owner\n",
             output.getvalue(),
         )
+
+    def test_duplicate_frontmatter_key_is_error(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            duplicate = COMMON_FIELDS.replace("type: project", "type: asset\ntype: project")
+            self.write_note(root, "10-项目/x.md", duplicate)
+
+            issues = validate_vault(root)
+
+        self.assertTrue(any(issue.code == "DUPLICATE_FRONTMATTER_KEY" for issue in issues))
+
+    def test_relation_fields_must_be_lists(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            invalid = COMMON_FIELDS.replace("source_refs: []", "source_refs: scalar").replace(
+                "related: []", "related: scalar"
+            )
+            self.write_note(root, "10-项目/x.md", invalid)
+
+            issues = validate_vault(root)
+
+        self.assertEqual(2, len([issue for issue in issues if issue.code == "INVALID_LIST_FIELD"]))
+
+    def test_cli_fails_for_missing_root(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            missing = Path(temporary_directory) / "missing"
+            self.assertNotEqual(0, main([str(missing)]))
+
+    def test_cli_fails_when_framework_skeleton_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            self.assertNotEqual(0, main([temporary_directory]))
 
 
 if __name__ == "__main__":
