@@ -17,3 +17,7 @@ desktop.ini
 # Temporary files
 *.tmp
 *.bak
+
+# Isolated implementation worktrees and agent scratch
+.worktrees/
+.superpowers/
