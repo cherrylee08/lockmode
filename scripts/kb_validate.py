@@ -24,6 +24,10 @@ REQUIRED_COMMON_FIELDS = (
     "review_date",
 )
 VALID_CONFIDENCE = frozenset({"confirmed", "inferred", "unverified"})
+VALID_KNOWLEDGE_STAGES = frozenset(
+    {"captured", "triaged", "digested", "connected", "used", "reviewed"}
+)
+VALID_FEEDBACK_STATUS = frozenset({"not_applicable", "pending", "recorded"})
 FORMAL_DIRECTORIES = {
     "10-项目": "project",
     "20-资产": "asset",
@@ -33,6 +37,7 @@ FORMAL_DIRECTORIES = {
     "60-Skill": "skill",
 }
 LIST_FIELDS = ("source_refs", "related")
+ITERATION_LIST_FIELDS = ("used_in",)
 
 
 @dataclass(frozen=True)
@@ -146,6 +151,25 @@ def validate_note(path: Path, root: Path) -> list[Issue]:
     for field in LIST_FIELDS:
         if field in metadata and not isinstance(metadata[field], list):
             issues.append(Issue("ERROR", relative_path, "INVALID_LIST_FIELD", f"{field} must be a bracket list"))
+
+    knowledge_stage = metadata.get("knowledge_stage")
+    if knowledge_stage not in (None, "") and knowledge_stage not in VALID_KNOWLEDGE_STAGES:
+        issues.append(Issue("ERROR", relative_path, "INVALID_KNOWLEDGE_STAGE", "knowledge_stage is invalid"))
+
+    for field in ITERATION_LIST_FIELDS:
+        if field in metadata and not isinstance(metadata[field], list):
+            issues.append(Issue("ERROR", relative_path, "INVALID_LIST_FIELD", f"{field} must be a bracket list"))
+
+    if knowledge_stage in {"used", "reviewed"}:
+        used_in = metadata.get("used_in")
+        if not isinstance(used_in, list) or not used_in:
+            issues.append(Issue("ERROR", relative_path, "MISSING_USED_IN", "used/reviewed knowledge requires used_in"))
+
+    feedback_status = metadata.get("feedback_status")
+    if feedback_status not in (None, "") and feedback_status not in VALID_FEEDBACK_STATUS:
+        issues.append(Issue("ERROR", relative_path, "INVALID_FEEDBACK_STATUS", "feedback_status is invalid"))
+    if knowledge_stage == "reviewed" and feedback_status != "recorded":
+        issues.append(Issue("ERROR", relative_path, "INVALID_FEEDBACK_STATUS", "reviewed knowledge requires recorded feedback"))
     return issues
 
 
