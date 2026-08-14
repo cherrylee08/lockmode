@@ -219,6 +219,91 @@ class ValidateVaultTests(unittest.TestCase):
             issues = validate_vault(root)
         self.assertTrue(any(issue.code == "INVALID_FEEDBACK_STATUS" for issue in issues))
 
+    def test_list_valued_knowledge_stage_is_reported_as_invalid(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "10-项目/x.md",
+                COMMON_FIELDS + "knowledge_stage: [captured]\n",
+            )
+
+            issues = validate_vault(root)
+
+        self.assertTrue(any(issue.code == "INVALID_KNOWLEDGE_STAGE" for issue in issues))
+
+    def test_list_valued_feedback_status_is_reported_as_invalid(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "20-资产/x.md",
+                COMMON_FIELDS.replace("type: project", "type: asset")
+                + "feedback_status: [pending]\n",
+            )
+
+            issues = validate_vault(root)
+
+        self.assertTrue(any(issue.code == "INVALID_FEEDBACK_STATUS" for issue in issues))
+
+    def test_used_in_must_be_a_list(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "20-资产/x.md",
+                COMMON_FIELDS.replace("type: project", "type: asset")
+                + "knowledge_stage: used\nused_in: KB-PROJECT-1\nfeedback_status: pending\n",
+            )
+
+            issues = validate_vault(root)
+
+        self.assertTrue(any(issue.code == "INVALID_LIST_FIELD" for issue in issues))
+
+    def test_invalid_feedback_status_is_error_outside_reviewed_stage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "20-资产/x.md",
+                COMMON_FIELDS.replace("type: project", "type: asset")
+                + "knowledge_stage: digested\nfeedback_status: unknown\n",
+            )
+
+            issues = validate_vault(root)
+
+        self.assertTrue(any(issue.code == "INVALID_FEEDBACK_STATUS" for issue in issues))
+
+    def test_valid_used_stage_has_no_lifecycle_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "20-资产/x.md",
+                COMMON_FIELDS.replace("type: project", "type: asset")
+                + "knowledge_stage: used\nused_in: [KB-PROJECT-1]\nfeedback_status: pending\n",
+            )
+
+            issues = validate_vault(root)
+
+        lifecycle_codes = {"INVALID_KNOWLEDGE_STAGE", "INVALID_LIST_FIELD", "MISSING_USED_IN", "INVALID_FEEDBACK_STATUS"}
+        self.assertFalse(any(issue.code in lifecycle_codes for issue in issues))
+
+    def test_valid_reviewed_stage_has_no_lifecycle_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "20-资产/x.md",
+                COMMON_FIELDS.replace("type: project", "type: asset")
+                + "knowledge_stage: reviewed\nused_in: [KB-PROJECT-1]\nfeedback_status: recorded\n",
+            )
+
+            issues = validate_vault(root)
+
+        lifecycle_codes = {"INVALID_KNOWLEDGE_STAGE", "INVALID_LIST_FIELD", "MISSING_USED_IN", "INVALID_FEEDBACK_STATUS"}
+        self.assertFalse(any(issue.code in lifecycle_codes for issue in issues))
+
 
 if __name__ == "__main__":
     unittest.main()
