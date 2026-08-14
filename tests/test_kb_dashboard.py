@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import tempfile
-import unittest
 import subprocess
 import sys
+import tempfile
+import unittest
 from datetime import date
 from pathlib import Path
 
@@ -74,6 +74,97 @@ class DashboardTests(unittest.TestCase):
         )
         self.assertEqual(4, data.inbox_count)
 
+    def test_top_three_only_prioritizes_existing_active_project_links(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.create_vault(root)
+            self.write_note(root, "20-资产/资产A.md", "title: 资产A\n")
+            self.write_note(root, "10-项目/停滞项目.md", "title: 停滞项目\nstatus: paused\n")
+            self.write_note(
+                root,
+                "01-收件箱/资产关联.md",
+                "captured_at: 2026-07-01\nrelated: [\"[[20-资产/资产A]]\"]\nsummary: 资产关联\n",
+            )
+            self.write_note(
+                root,
+                "01-收件箱/停滞项目关联.md",
+                "captured_at: 2026-07-02\nrelated: [\"[[10-项目/停滞项目]]\"]\nsummary: 停滞项目关联\n",
+            )
+            self.write_note(
+                root,
+                "01-收件箱/失效项目关联.md",
+                "captured_at: 2026-07-03\nrelated: [\"[[10-项目/不存在]]\"]\nsummary: 失效项目关联\n",
+            )
+
+            data = collect_dashboard(root, self.today)
+
+        self.assertEqual(
+            ("关联项目较早摘要", "关联项目较晚摘要", "资产关联"),
+            data.top_three,
+        )
+
+    def test_collects_current_week_review_and_uses_stable_path_tiebreaker(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.create_vault(root)
+            review = """---
+title: 本周复盘
+week: 2026-W33
+---
+
+## 下周唯一业务输出
+
+- 服务项目：项目A
+- 解决问题：确定 Top 3 的客户优先级
+- 验收标准：完成并确认驾驶舱
+
+## 业务派生内容
+
+- 题目：老板如何处理知识积压
+- 来源项目：项目A
+- 脱敏检查：已完成
+"""
+            later_review = review.replace("项目A", "项目Z").replace("老板如何处理知识积压", "不应被选择")
+            (root / "00-系统/A-周复盘.md").write_text(review, encoding="utf-8")
+            (root / "00-系统/Z-周复盘.md").write_text(later_review, encoding="utf-8")
+            (root / "00-系统/旧周复盘.md").write_text(review.replace("2026-W33", "2026-W32"), encoding="utf-8")
+
+            data = collect_dashboard(root, self.today)
+
+        self.assertEqual(
+            "服务项目：项目A；解决问题：确定 Top 3 的客户优先级；验收标准：完成并确认驾驶舱",
+            data.weekly_business_output,
+        )
+        self.assertEqual("题目：老板如何处理知识积压；来源项目：项目A", data.weekly_content_derivative)
+
+    def test_current_week_review_requires_effectively_filled_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.create_vault(root)
+            (root / "00-系统/周复盘.md").write_text(
+                """---
+week: 2026-W33
+---
+
+## 下周唯一业务输出
+
+- 服务项目：
+- 解决问题：
+- 验收标准：
+
+## 业务派生内容
+
+- 题目：
+- 来源项目：
+""",
+                encoding="utf-8",
+            )
+
+            data = collect_dashboard(root, self.today)
+
+        self.assertIsNone(data.weekly_business_output)
+        self.assertIsNone(data.weekly_content_derivative)
+
     def test_collects_overdue_reviews_and_projects_without_next_action(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
@@ -135,6 +226,29 @@ class DashboardTests(unittest.TestCase):
                         write_dashboard(root, target, generated)
 
             self.assertEqual("保留", existing.read_text(encoding="utf-8"))
+
+    @unittest.skipUnless(sys.platform == "win32", "directory junctions are a Windows reparse-point behavior")
+    def test_write_refuses_managed_parent_directory_junction(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            root = temporary_root / "vault"
+            root.mkdir()
+            outside = temporary_root / "outside"
+            outside.mkdir()
+            junction = root / "00-系统"
+            created = subprocess.run(
+                ["cmd", "/c", "mklink", "/J", str(junction), str(outside)],
+                capture_output=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+            )
+            self.assertEqual(0, created.returncode, created.stderr)
+
+            with self.assertRaises(ValueError):
+                write_dashboard(root, junction / "知识迭代驾驶舱.md", "2026-08-13")
+
+            self.assertFalse((outside / "知识迭代驾驶舱.md").exists())
 
     def test_write_allows_only_exact_managed_dashboard_path(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

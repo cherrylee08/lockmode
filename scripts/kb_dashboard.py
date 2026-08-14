@@ -55,7 +55,33 @@ def inbox_priority(item: InboxItem) -> tuple[int, str, str]:
     return (0 if item.related else 1, item.captured_at or "9999-12-31", item.path)
 
 
-def _inbox_items(root: Path) -> list[InboxItem]:
+def _active_project_paths(root: Path) -> frozenset[str]:
+    projects = root / "10-项目"
+    if not projects.is_dir():
+        return frozenset()
+    active_paths: set[str] = set()
+    for path in sorted(projects.rglob("*.md")):
+        if path.name == "Index.md" or parse_frontmatter(path).get("status") != "active":
+            continue
+        relative = path.relative_to(root).as_posix()
+        active_paths.add(relative)
+        active_paths.add(relative.removesuffix(".md"))
+    return frozenset(active_paths)
+
+
+def _links_to_active_project(related: object, active_project_paths: frozenset[str]) -> bool:
+    if not isinstance(related, list):
+        return False
+    for value in related:
+        if not isinstance(value, str) or not (value.startswith("[[") and value.endswith("]]")):
+            continue
+        target = value[2:-2].split("|", 1)[0].split("#", 1)[0].strip().replace("\\", "/")
+        if target in active_project_paths or f"{target}.md" in active_project_paths:
+            return True
+    return False
+
+
+def _inbox_items(root: Path, active_project_paths: frozenset[str]) -> list[InboxItem]:
     inbox = root / "01-收件箱"
     if not inbox.is_dir():
         return []
@@ -72,7 +98,7 @@ def _inbox_items(root: Path) -> list[InboxItem]:
             InboxItem(
                 path=path.relative_to(root).as_posix(),
                 captured_at=captured_at.strip() if isinstance(captured_at, str) else "",
-                related=bool(related),
+                related=_links_to_active_project(related, active_project_paths),
                 display=display,
             )
         )
@@ -141,19 +167,82 @@ def _pending_confirmations(root: Path) -> int:
     return count
 
 
+def _current_week(today: date) -> str:
+    iso_week = today.isocalendar()
+    return f"{iso_week.year}-W{iso_week.week:02d}"
+
+
+def _review_section(text: str, heading: str) -> tuple[str, ...]:
+    lines = text.splitlines()
+    start = next((index + 1 for index, line in enumerate(lines) if line.strip() == heading), None)
+    if start is None:
+        return ()
+    end = next((index for index, line in enumerate(lines[start:], start=start) if line.startswith("## ")), len(lines))
+    return tuple(lines[start:end])
+
+
+def _filled_review_value(lines: tuple[str, ...], label: str) -> str | None:
+    for line in lines:
+        stripped = line.strip()
+        for prefix in (f"- {label}：", f"- {label}:"):
+            if not stripped.startswith(prefix):
+                continue
+            value = stripped[len(prefix):].strip()
+            if value and value not in {"未填写", "待填写", "无"} and "{{" not in value:
+                return value
+    return None
+
+
+def _weekly_review_outputs(root: Path, today: date) -> tuple[str | None, str | None]:
+    expected_week = _current_week(today)
+    candidates: list[Path] = []
+    for path in root.rglob("*.md"):
+        relative = path.relative_to(root)
+        if (
+            path == root / MANAGED_DASHBOARD
+            or "raw" in relative.parts
+            or "Templates" in relative.parts
+            or ".git" in relative.parts
+            or ".superpowers" in relative.parts
+        ):
+            continue
+        if parse_frontmatter(path).get("week") == expected_week:
+            candidates.append(path)
+    if not candidates:
+        return None, None
+
+    review = min(candidates, key=lambda item: item.relative_to(root).as_posix())
+    text = review.read_text(encoding="utf-8-sig")
+    business_section = _review_section(text, "## 下周唯一业务输出")
+    content_section = _review_section(text, "## 业务派生内容")
+    service_project = _filled_review_value(business_section, "服务项目")
+    problem = _filled_review_value(business_section, "解决问题")
+    acceptance = _filled_review_value(business_section, "验收标准")
+    title = _filled_review_value(content_section, "题目")
+    source_project = _filled_review_value(content_section, "来源项目")
+    business = (
+        f"服务项目：{service_project}；解决问题：{problem}；验收标准：{acceptance}"
+        if service_project and problem and acceptance
+        else None
+    )
+    derivative = f"题目：{title}；来源项目：{source_project}" if title and source_project else None
+    return business, derivative
+
+
 def collect_dashboard(root: Path, today: date) -> DashboardData:
     """Collect deterministic, read-only dashboard data from a vault."""
     root = root.resolve()
-    inbox_items = _inbox_items(root)
+    inbox_items = _inbox_items(root, _active_project_paths(root))
     ordered_inbox = sorted(inbox_items, key=inbox_priority)
+    weekly_business_output, weekly_content_derivative = _weekly_review_outputs(root, today)
     return DashboardData(
         inbox_count=len(inbox_items),
         top_three=tuple(item.display for item in ordered_inbox[:3]),
         overdue_reviews=_overdue_reviews(root, today),
         active_projects_without_next_action=_active_projects_without_next_action(root),
         pending_confirmations=_pending_confirmations(root),
-        weekly_business_output=None,
-        weekly_content_derivative=None,
+        weekly_business_output=weekly_business_output,
+        weekly_content_derivative=weekly_content_derivative,
     )
 
 
@@ -220,30 +309,63 @@ def render_dashboard(data: DashboardData, generated: str) -> str:
     return "\n".join(lines)
 
 
+def _is_reparse_point(path: Path) -> bool:
+    try:
+        metadata = path.lstat()
+    except FileNotFoundError:
+        return False
+    return path.is_symlink() or bool(getattr(metadata, "st_file_attributes", 0) & 0x0400)
+
+
+def _is_within(path: Path, directory: Path) -> bool:
+    try:
+        path.relative_to(directory)
+    except ValueError:
+        return False
+    return True
+
+
 def _managed_output_path(root: Path, output: Path) -> Path | None:
-    root = root.resolve()
-    candidate = (root / output).resolve() if not output.is_absolute() else output.resolve()
-    managed = (root / MANAGED_DASHBOARD).resolve()
-    return candidate if candidate == managed else None
+    lexical_root = root.absolute()
+    candidate = (lexical_root / output).absolute() if not output.is_absolute() else output.absolute()
+    managed = (lexical_root / MANAGED_DASHBOARD).absolute()
+    if candidate != managed or not lexical_root.is_dir():
+        return None
+
+    managed_parent = managed.parent
+    if _is_reparse_point(managed_parent) or _is_reparse_point(managed):
+        return None
+
+    resolved_root = lexical_root.resolve()
+    resolved_parent = managed_parent.resolve()
+    expected_parent = resolved_root / MANAGED_DASHBOARD.parent
+    resolved_managed = managed.resolve()
+    if (
+        resolved_parent != expected_parent
+        or resolved_managed.parent != resolved_parent
+        or not _is_within(resolved_managed, resolved_root)
+    ):
+        return None
+    return managed
 
 
 def write_dashboard(root: Path, output: Path, generated: str) -> None:
     """Write only the exact, managed dashboard path; reject every other target."""
-    root = root.resolve()
-    managed_output = _managed_output_path(root, output)
+    lexical_root = root.absolute()
+    managed_output = _managed_output_path(lexical_root, output)
     if managed_output is None:
         raise ValueError("dashboard output must be the managed 00-系统/知识迭代驾驶舱.md page")
     managed_output.parent.mkdir(parents=True, exist_ok=True)
-    managed_output.write_text(render_dashboard(collect_dashboard(root, date.fromisoformat(generated)), generated), encoding="utf-8")
+    managed_output.write_text(render_dashboard(collect_dashboard(lexical_root, date.fromisoformat(generated)), generated), encoding="utf-8")
 
 
 def check_dashboard(root: Path, output: Path, generated: str) -> bool:
     """Compare the expected managed page in memory without modifying the vault."""
-    root = root.resolve()
-    managed_output = _managed_output_path(root, output)
+    lexical_root = root.absolute()
+    managed_output = _managed_output_path(lexical_root, output)
     if managed_output is None or not managed_output.is_file():
         return False
-    expected = render_dashboard(collect_dashboard(root, date.fromisoformat(generated)), generated)
+    expected = render_dashboard(collect_dashboard(lexical_root, date.fromisoformat(generated)), generated)
     return managed_output.read_text(encoding="utf-8-sig") == expected
 
 
