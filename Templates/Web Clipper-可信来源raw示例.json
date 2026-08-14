@@ -10,9 +10,9 @@
     {"name": "source_url", "value": "{{url}}", "type": "text"},
     {"name": "source_site", "value": "{{site}}", "type": "text"},
     {"name": "source_published_at", "value": "{{published}}", "type": "text"},
-    {"name": "captured_at", "value": "{{date|date:\"YYYY-MM-DD\"}} {{time}}", "type": "text"}
+    {"name": "captured_at", "value": "{{date|date:\"YYYY-MM-DD\"}} {{time}}", "type": "text"},
+    {"name": "_setup_warning", "value": "导入后必须由用户填写可信域名触发器；未填写前只可手动选择", "type": "text"}
   ],
   "triggers": [],
-  "_setup_warning": "导入后必须由用户填写可信域名触发器；未填写前只可手动选择",
   "noteContentFormat": "# {{title}}\n\n> 来源：[{{title}}]({{url}})\n> 来源站点：{{site}}\n> 发布日期：{{published}}\n> 抓取日期：{{date|date:\"YYYY-MM-DD\"}}\n\n## 原始内容\n\n{{content}}"
 }
