@@ -61,15 +61,21 @@ class KnowledgeIterationContractTests(unittest.TestCase):
         )
 
     def test_owner_facing_root_markdown_count_distinguishes_the_first_audit_cohort(self) -> None:
+        result = subprocess.run(
+            ["git", "ls-files", "-z", "--", "*.md"],
+            cwd=REPOSITORY_ROOT,
+            capture_output=True,
+            check=True,
+        )
         root_markdown = [
-            path
-            for path in REPOSITORY_ROOT.glob("*.md")
-            if path.name != "AGENTS.md" and path.is_file()
+            path.decode("utf-8")
+            for path in result.stdout.split(b"\0")
+            if path and b"/" not in path and path != b"AGENTS.md"
         ]
 
         self.assertEqual(63, len(root_markdown))
         current_count = (
-            "根目录当前 Markdown：63 篇（不含系统 AGENTS.md；首轮 51 篇中已迁移 8 篇、"
+            "Git 已跟踪的根目录 Markdown：63 篇（不含系统 AGENTS.md；首轮 51 篇中已迁移 8 篇、"
             "仍留 43 篇，首轮后新增 20 篇）"
         )
         self.assertIn(current_count, self.read("00-系统/健康报告.md"))
