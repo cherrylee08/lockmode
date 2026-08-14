@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import subprocess
+import sys
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
@@ -33,6 +35,17 @@ class ValidateVaultTests(unittest.TestCase):
         path = root / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"---\n{frontmatter}---\n\n# 测试笔记\n", encoding="utf-8")
+
+    def create_junction(self, junction: Path, target: Path) -> None:
+        junction.parent.mkdir(parents=True, exist_ok=True)
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(junction), str(target)],
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+        self.assertEqual(0, result.returncode, result.stderr)
 
     def test_valid_formal_note_has_no_errors(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -303,6 +316,115 @@ class ValidateVaultTests(unittest.TestCase):
 
         lifecycle_codes = {"INVALID_KNOWLEDGE_STAGE", "INVALID_LIST_FIELD", "MISSING_USED_IN", "INVALID_FEEDBACK_STATUS"}
         self.assertFalse(any(issue.code in lifecycle_codes for issue in issues))
+
+    def test_inbox_lifecycle_validates_completed_stages_but_allows_early_stages(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            complete_digestion = (
+                "summary: 可复用的一句话结论\n"
+                "confidence: confirmed\n"
+                "suggested_type: resource\n"
+                'related: ["[[10-项目/项目A]]"]\n'
+                "review_date:\n"
+            )
+            self.write_note(root, "01-收件箱/01-captured.md", "knowledge_stage: captured\n")
+            self.write_note(root, "01-收件箱/02-triaged.md", "knowledge_stage: triaged\n")
+            self.write_note(
+                root,
+                "01-收件箱/03-digested.md",
+                "knowledge_stage: digested\n" + complete_digestion,
+            )
+            self.write_note(
+                root,
+                "01-收件箱/04-connected.md",
+                "knowledge_stage: connected\n" + complete_digestion,
+            )
+            self.write_note(
+                root,
+                "01-收件箱/05-used.md",
+                "knowledge_stage: used\n"
+                + complete_digestion
+                + "used_in: [KB-PROJECT-1]\nfeedback_status: pending\n",
+            )
+            self.write_note(
+                root,
+                "01-收件箱/06-reviewed.md",
+                "knowledge_stage: reviewed\n"
+                + complete_digestion
+                + "used_in: [KB-PROJECT-1]\nfeedback_status: recorded\n",
+            )
+            self.write_note(
+                root,
+                "01-收件箱/07-incomplete-digested.md",
+                "knowledge_stage: digested\nsummary:\nconfidence:\nsuggested_type:\nrelated: []\nreview_date:\n",
+            )
+
+            issues = validate_vault(root)
+
+        self.assertEqual(
+            {"MISSING_DIGESTION_SUMMARY", "MISSING_DIGESTION_CONFIDENCE", "INVALID_SUGGESTED_TYPE", "MISSING_DIGESTION_CONNECTION"},
+            {issue.code for issue in issues},
+        )
+        self.assertTrue(all(issue.path == "01-收件箱/07-incomplete-digested.md" for issue in issues))
+
+    def test_inbox_invalid_stage_is_error(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(root, "01-收件箱/invalid.md", "knowledge_stage: unknown\n")
+
+            issues = validate_vault(root)
+
+        self.assertTrue(any(issue.code == "INVALID_KNOWLEDGE_STAGE" for issue in issues))
+
+    def test_inbox_digested_rejects_list_valued_confidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(
+                root,
+                "01-收件箱/invalid-confidence.md",
+                "knowledge_stage: digested\n"
+                "summary: 已填写摘要\n"
+                "confidence: [confirmed]\n"
+                "suggested_type: resource\n"
+                'related: ["[[10-项目/项目A]]"]\n'
+                "review_date:\n",
+            )
+
+            issues = validate_vault(root)
+
+        self.assertTrue(any(issue.code == "INVALID_CONFIDENCE" for issue in issues))
+
+    @unittest.skipUnless(sys.platform == "win32", "directory junctions are a Windows reparse-point behavior")
+    def test_inbox_directory_junction_is_not_validated(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            root = temporary_root / "vault"
+            outside = temporary_root / "outside-inbox"
+            root.mkdir()
+            self.write_note(
+                outside,
+                "incomplete.md",
+                "knowledge_stage: digested\nsummary:\nconfidence:\nsuggested_type:\nrelated: []\nreview_date:\n",
+            )
+            self.create_junction(root / "01-收件箱/linked", outside)
+
+            issues = validate_vault(root)
+
+        self.assertFalse(any(issue.path.startswith("01-收件箱/linked/") for issue in issues))
+
+    @unittest.skipUnless(sys.platform == "win32", "directory junctions are a Windows reparse-point behavior")
+    def test_formal_directory_junction_is_not_validated(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            root = temporary_root / "vault"
+            outside = temporary_root / "outside-formal"
+            root.mkdir()
+            self.write_note(outside, "invalid.md", "title: 外部内容\n")
+            self.create_junction(root / "40-辅助/linked", outside)
+
+            issues = validate_vault(root)
+
+        self.assertFalse(any(issue.path.startswith("40-辅助/linked/") for issue in issues))
 
 
 if __name__ == "__main__":

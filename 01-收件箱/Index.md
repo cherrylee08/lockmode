@@ -15,8 +15,8 @@ updated: 2026-08-13
 
 - 每天最多消化 3 条输入。
 - 使用五个问题：是否值得保留？内容性质是事实、观点、方法还是想法？可信度如何？建议主归属是什么？下一步是什么？
-- 最低完成标准：保留原始输入，填写一句话结论和五个判断；未完成前保持在收件箱。
-- 生命周期：`captured`（已捕获）、`triaged`（已分诊）、`digested`（已消化）、`connected`（已关联）、`used`（已使用）、`reviewed`（已复盘）。`used`/`reviewed` 需要 `used_in`，`reviewed` 还需要 `feedback_status: recorded`。
+- `captured` / `triaged` 允许字段不完整；进入 `digested`、`connected`、`used` 或 `reviewed` 后，必须填写非空 `summary`、有效 `confidence`、一个有效的 `suggested_type`，以及非空 `related` 或 `review_date`。
+- 生命周期：`captured`（已捕获）、`triaged`（已分诊）、`digested`（已消化）、`connected`（已关联）、`used`（已使用）、`reviewed`（已复盘）。`used`/`reviewed` 需要 `used_in`，`reviewed` 还需要 `feedback_status: recorded`；待消化积压和 Top 3 只包含缺少阶段、`captured` 或 `triaged` 的输入。
 - 收件箱超过 30 条时触发积压提醒。完成复盘且不再需要主动维护的输入可提出归档；涉及移动或改变唯一主归属必须等待用户确认。
 
 ## Web Clipper 入口

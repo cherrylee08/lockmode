@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
 if __package__:
-    from scripts.kb_validate import parse_frontmatter
+    from scripts.kb_validate import is_reparse_point, is_safe_file, is_within, parse_frontmatter, safe_markdown_paths
 else:
-    from kb_validate import parse_frontmatter
+    from kb_validate import is_reparse_point, is_safe_file, is_within, parse_frontmatter, safe_markdown_paths
 
 
 FORMAL_DIRECTORIES = (
@@ -22,8 +23,9 @@ FORMAL_DIRECTORIES = (
     "60-Skill",
 )
 MANAGED_DASHBOARD = Path("00-系统") / "知识迭代驾驶舱.md"
-WEEKLY_REVIEW_DIRECTORY = Path("00-系统")
+WEEKLY_REVIEW_DIRECTORY = Path("00-系统") / "每周复盘"
 UNAVAILABLE_METRIC = "暂不可计算：缺少本周复盘记录"
+PENDING_INBOX_STAGES = frozenset({"captured", "triaged"})
 
 
 @dataclass(frozen=True)
@@ -45,6 +47,12 @@ class InboxItem:
     display: str
 
 
+@dataclass(frozen=True)
+class ActiveProjectTargets:
+    qualified: frozenset[str]
+    unique_basenames: frozenset[str]
+
+
 def _display_name(path: Path, metadata: dict[str, object], root: Path) -> str:
     title = metadata.get("title")
     if isinstance(title, str) and title.strip():
@@ -56,41 +64,58 @@ def inbox_priority(item: InboxItem) -> tuple[int, str, str]:
     return (0 if item.related else 1, item.captured_at or "9999-12-31", item.path)
 
 
-def _active_project_paths(root: Path) -> frozenset[str]:
+def _active_project_paths(root: Path) -> ActiveProjectTargets:
     projects = root / "10-项目"
     if not projects.is_dir():
-        return frozenset()
-    active_paths: set[str] = set()
-    for path in sorted(projects.rglob("*.md")):
+        return ActiveProjectTargets(frozenset(), frozenset())
+    active_paths: list[Path] = []
+    for path in safe_markdown_paths(projects):
         if path.name == "Index.md" or parse_frontmatter(path).get("status") != "active":
             continue
-        relative = path.relative_to(root).as_posix()
-        active_paths.add(relative)
-        active_paths.add(relative.removesuffix(".md"))
-    return frozenset(active_paths)
+        active_paths.append(path)
+
+    basename_counts = Counter(path.stem.casefold() for path in safe_markdown_paths(root, skip_hidden=True))
+    qualified = frozenset(
+        path.relative_to(root).with_suffix("").as_posix().casefold()
+        for path in active_paths
+    )
+    unique_basenames = frozenset(
+        path.stem.casefold()
+        for path in active_paths
+        if basename_counts[path.stem.casefold()] == 1
+    )
+    return ActiveProjectTargets(qualified, unique_basenames)
 
 
-def _links_to_active_project(related: object, active_project_paths: frozenset[str]) -> bool:
+def _links_to_active_project(related: object, active_project_paths: ActiveProjectTargets) -> bool:
     if not isinstance(related, list):
         return False
     for value in related:
         if not isinstance(value, str) or not (value.startswith("[[") and value.endswith("]]")):
             continue
         target = value[2:-2].split("|", 1)[0].split("#", 1)[0].strip().replace("\\", "/")
-        if target in active_project_paths or f"{target}.md" in active_project_paths:
+        if target.casefold().endswith(".md"):
+            target = target[:-3]
+        normalized = target.strip("/").casefold()
+        if "/" in normalized and normalized in active_project_paths.qualified:
+            return True
+        if "/" not in normalized and normalized in active_project_paths.unique_basenames:
             return True
     return False
 
 
-def _inbox_items(root: Path, active_project_paths: frozenset[str]) -> list[InboxItem]:
+def _inbox_items(root: Path, active_project_paths: ActiveProjectTargets) -> list[InboxItem]:
     inbox = root / "01-收件箱"
     if not inbox.is_dir():
         return []
     items: list[InboxItem] = []
-    for path in sorted(inbox.rglob("*.md")):
+    for path in safe_markdown_paths(inbox):
         if path.name == "Index.md":
             continue
         metadata = parse_frontmatter(path)
+        knowledge_stage = metadata.get("knowledge_stage")
+        if knowledge_stage not in (None, "") and knowledge_stage not in PENDING_INBOX_STAGES:
+            continue
         captured_at = metadata.get("captured_at")
         related = metadata.get("related")
         summary = metadata.get("summary")
@@ -110,9 +135,7 @@ def _formal_note_paths(root: Path) -> list[Path]:
     paths: list[Path] = []
     for directory in FORMAL_DIRECTORIES:
         directory_path = root / directory
-        if not directory_path.is_dir():
-            continue
-        for path in directory_path.rglob("*.md"):
+        for path in safe_markdown_paths(directory_path):
             relative = path.relative_to(root)
             if path.name == "Index.md" or (directory == "30-资源" and "raw" in relative.parts):
                 continue
@@ -136,7 +159,7 @@ def _active_projects_without_next_action(root: Path) -> tuple[str, ...]:
     if not projects.is_dir():
         return ()
     missing: list[tuple[str, str]] = []
-    for path in sorted(projects.rglob("*.md")):
+    for path in safe_markdown_paths(projects):
         if path.name == "Index.md":
             continue
         metadata = parse_frontmatter(path)
@@ -148,7 +171,7 @@ def _active_projects_without_next_action(root: Path) -> tuple[str, ...]:
 
 def _pending_confirmations(root: Path) -> int:
     queue = root / "00-系统" / "待确认队列.md"
-    if not queue.is_file():
+    if not is_safe_file(queue, root):
         return 0
     header: list[str] | None = None
     status_index: int | None = None
@@ -200,7 +223,7 @@ def _weekly_review_outputs(root: Path, today: date) -> tuple[str | None, str | N
     review_directory = root / WEEKLY_REVIEW_DIRECTORY
     if not review_directory.is_dir():
         return None, None
-    for path in sorted(review_directory.glob("*.md")):
+    for path in safe_markdown_paths(review_directory, recursive=False):
         if path == root / MANAGED_DASHBOARD:
             continue
         if parse_frontmatter(path).get("week") == expected_week:
@@ -306,22 +329,6 @@ def render_dashboard(data: DashboardData, generated: str) -> str:
     return "\n".join(lines)
 
 
-def _is_reparse_point(path: Path) -> bool:
-    try:
-        metadata = path.lstat()
-    except FileNotFoundError:
-        return False
-    return path.is_symlink() or bool(getattr(metadata, "st_file_attributes", 0) & 0x0400)
-
-
-def _is_within(path: Path, directory: Path) -> bool:
-    try:
-        path.relative_to(directory)
-    except ValueError:
-        return False
-    return True
-
-
 def _managed_output_path(root: Path, output: Path) -> Path | None:
     lexical_root = root.absolute()
     candidate = (lexical_root / output).absolute() if not output.is_absolute() else output.absolute()
@@ -330,7 +337,7 @@ def _managed_output_path(root: Path, output: Path) -> Path | None:
         return None
 
     managed_parent = managed.parent
-    if _is_reparse_point(managed_parent) or _is_reparse_point(managed):
+    if is_reparse_point(managed_parent) or is_reparse_point(managed):
         return None
 
     resolved_root = lexical_root.resolve()
@@ -340,7 +347,7 @@ def _managed_output_path(root: Path, output: Path) -> Path | None:
     if (
         resolved_parent != expected_parent
         or resolved_managed.parent != resolved_parent
-        or not _is_within(resolved_managed, resolved_root)
+        or not is_within(resolved_managed, resolved_root)
     ):
         return None
     return managed
