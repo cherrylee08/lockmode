@@ -1,0 +1,19 @@
+﻿{
+  "schemaVersion": "0.1.0",
+  "name": "李大谱知识库 - 默认收件箱",
+  "behavior": "create",
+  "noteNameFormat": "{{date|date:\"YYYY-MM-DD\"}} {{title|safe_name}}",
+  "path": "01-收件箱",
+  "context": "{{content}}",
+  "properties": [
+    {"name": "captured_at", "value": "{{date|date:\"YYYY-MM-DD\"}} {{time}}", "type": "text"},
+    {"name": "capture_channel", "value": "web_clipper", "type": "text"},
+    {"name": "knowledge_stage", "value": "captured", "type": "text"},
+    {"name": "source_url", "value": "{{url}}", "type": "text"},
+    {"name": "source_title", "value": "{{title}}", "type": "text"},
+    {"name": "source_site", "value": "{{site}}", "type": "text"},
+    {"name": "confidence", "value": "unverified", "type": "text"}
+  ],
+  "triggers": [],
+  "noteContentFormat": "# {{title}}\n\n> 来源：[{{title}}]({{url}}) · 抓取于 {{date|date:\"YYYY-MM-DD\"}}\n\n## 原始内容\n\n{{content}}\n\n## 一句话结论\n\n## 五个判断\n\n- 是否值得保留：\n- 内容性质：事实 / 观点 / 方法 / 想法\n- 可信度：unverified\n- 建议主归属：\n- 下一步："
+}

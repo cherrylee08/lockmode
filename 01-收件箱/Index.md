@@ -19,6 +19,11 @@ updated: 2026-08-13
 - 生命周期：`captured`（已捕获）、`triaged`（已分诊）、`digested`（已消化）、`connected`（已关联）、`used`（已使用）、`reviewed`（已复盘）。`used`/`reviewed` 需要 `used_in`，`reviewed` 还需要 `feedback_status: recorded`。
 - 收件箱超过 30 条时触发积压提醒。完成复盘且不再需要主动维护的输入可提出归档；涉及移动或改变唯一主归属必须等待用户确认。
 
+## Web Clipper 入口
+
+- [[Templates/Web Clipper-默认收件箱.json|默认收件箱 Clipper 模板]]：普通网页手动捕获到 `01-收件箱`；模板没有自动触发器。
+- 可信来源 raw 模板仅在用户逐项批准触发域名后使用；raw 抓取只读，不得覆盖或改写。
+
 ## 当前内容
 
 ## 待处理

@@ -1,0 +1,18 @@
+﻿{
+  "schemaVersion": "0.1.0",
+  "name": "李大谱知识库 - 可信来源 raw 示例",
+  "behavior": "create",
+  "noteNameFormat": "{{date|date:\"YYYY-MM-DD\"}} {{title|safe_name}}",
+  "path": "30-资源/raw",
+  "context": "{{content}}",
+  "properties": [
+    {"name": "source_title", "value": "{{title}}", "type": "text"},
+    {"name": "source_url", "value": "{{url}}", "type": "text"},
+    {"name": "source_site", "value": "{{site}}", "type": "text"},
+    {"name": "source_published_at", "value": "{{published}}", "type": "text"},
+    {"name": "captured_at", "value": "{{date|date:\"YYYY-MM-DD\"}} {{time}}", "type": "text"}
+  ],
+  "triggers": [],
+  "_setup_warning": "导入后必须由用户填写可信域名触发器；未填写前只可手动选择",
+  "noteContentFormat": "# {{title}}\n\n> 来源：[{{title}}]({{url}})\n> 来源站点：{{site}}\n> 发布日期：{{published}}\n> 抓取日期：{{date|date:\"YYYY-MM-DD\"}}\n\n## 原始内容\n\n{{content}}"
+}
