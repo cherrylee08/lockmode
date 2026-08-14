@@ -22,6 +22,7 @@ FORMAL_DIRECTORIES = (
     "60-Skill",
 )
 MANAGED_DASHBOARD = Path("00-系统") / "知识迭代驾驶舱.md"
+WEEKLY_REVIEW_DIRECTORY = Path("00-系统")
 UNAVAILABLE_METRIC = "暂不可计算：缺少本周复盘记录"
 
 
@@ -196,15 +197,11 @@ def _filled_review_value(lines: tuple[str, ...], label: str) -> str | None:
 def _weekly_review_outputs(root: Path, today: date) -> tuple[str | None, str | None]:
     expected_week = _current_week(today)
     candidates: list[Path] = []
-    for path in root.rglob("*.md"):
-        relative = path.relative_to(root)
-        if (
-            path == root / MANAGED_DASHBOARD
-            or "raw" in relative.parts
-            or "Templates" in relative.parts
-            or ".git" in relative.parts
-            or ".superpowers" in relative.parts
-        ):
+    review_directory = root / WEEKLY_REVIEW_DIRECTORY
+    if not review_directory.is_dir():
+        return None, None
+    for path in sorted(review_directory.glob("*.md")):
+        if path == root / MANAGED_DASHBOARD:
             continue
         if parse_frontmatter(path).get("week") == expected_week:
             candidates.append(path)

@@ -137,6 +137,39 @@ week: 2026-W33
         )
         self.assertEqual("题目：老板如何处理知识积压；来源项目：项目A", data.weekly_content_derivative)
 
+    def test_weekly_review_ignores_hidden_worktree_conflict(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.create_vault(root)
+            real_review = """---
+week: 2026-W33
+---
+
+## 下周唯一业务输出
+
+- 服务项目：真实项目
+- 解决问题：真实问题
+- 验收标准：真实验收
+
+## 业务派生内容
+
+- 题目：真实题目
+- 来源项目：真实项目
+"""
+            hidden_review = real_review.replace("真实", "隐藏")
+            (root / "00-系统/Z-真实复盘.md").write_text(real_review, encoding="utf-8")
+            hidden_path = root / ".worktrees/branch/00-系统/A-隐藏复盘.md"
+            hidden_path.parent.mkdir(parents=True)
+            hidden_path.write_text(hidden_review, encoding="utf-8")
+
+            data = collect_dashboard(root, self.today)
+
+        self.assertEqual(
+            "服务项目：真实项目；解决问题：真实问题；验收标准：真实验收",
+            data.weekly_business_output,
+        )
+        self.assertEqual("题目：真实题目；来源项目：真实项目", data.weekly_content_derivative)
+
     def test_current_week_review_requires_effectively_filled_fields(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
