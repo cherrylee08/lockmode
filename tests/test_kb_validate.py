@@ -376,6 +376,15 @@ class ValidateVaultTests(unittest.TestCase):
 
         self.assertTrue(any(issue.code == "INVALID_KNOWLEDGE_STAGE" for issue in issues))
 
+    def test_inbox_list_valued_stage_is_reported_without_crashing(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            self.write_note(root, "01-收件箱/invalid-list.md", "knowledge_stage: [captured]\n")
+
+            issues = validate_vault(root)
+
+        self.assertEqual({"INVALID_KNOWLEDGE_STAGE"}, {issue.code for issue in issues})
+
     def test_inbox_digested_rejects_list_valued_confidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)

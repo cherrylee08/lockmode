@@ -200,6 +200,21 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn("已消化不应进入积压", data.top_three)
         self.assertNotIn("已复盘不应进入积压", data.top_three)
 
+    def test_list_valued_inbox_stage_is_excluded_without_crashing(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            (root / "00-系统").mkdir(parents=True)
+            self.write_note(
+                root,
+                "01-收件箱/非法阶段.md",
+                "knowledge_stage: [captured]\ncaptured_at: 2026-08-01\nsummary: 不应进入积压\n",
+            )
+
+            data = collect_dashboard(root, self.today)
+
+        self.assertEqual(0, data.inbox_count)
+        self.assertEqual((), data.top_three)
+
     @unittest.skipUnless(sys.platform == "win32", "directory junctions are a Windows reparse-point behavior")
     def test_inbox_directory_junction_is_excluded_from_dashboard(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -247,7 +262,7 @@ class DashboardTests(unittest.TestCase):
 
         self.assertNotIn("外部到期内容", data.overdue_reviews)
 
-    def test_collects_current_week_review_and_uses_stable_path_tiebreaker(self) -> None:
+    def test_collects_only_exact_current_week_filename(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             self.create_vault(root)
@@ -271,9 +286,12 @@ week: 2026-W33
             later_review = review.replace("项目A", "项目Z").replace("老板如何处理知识积压", "不应被选择")
             review_directory = root / "00-系统/每周复盘"
             review_directory.mkdir(parents=True)
-            (review_directory / "A-周复盘.md").write_text(review, encoding="utf-8")
-            (review_directory / "Z-周复盘.md").write_text(later_review, encoding="utf-8")
-            (review_directory / "旧周复盘.md").write_text(review.replace("2026-W33", "2026-W32"), encoding="utf-8")
+            (review_directory / "2026-W33.md").write_text(review, encoding="utf-8")
+            (review_directory / "2025-W01.md").write_text(later_review, encoding="utf-8")
+            (review_directory / "2026-W32.md").write_text(
+                review.replace("2026-W33", "2026-W32"),
+                encoding="utf-8",
+            )
 
             data = collect_dashboard(root, self.today)
 
@@ -305,8 +323,8 @@ week: 2026-W33
             hidden_review = real_review.replace("真实", "隐藏")
             review_directory = root / "00-系统/每周复盘"
             review_directory.mkdir(parents=True)
-            (review_directory / "Z-真实复盘.md").write_text(real_review, encoding="utf-8")
-            hidden_path = root / ".worktrees/branch/00-系统/每周复盘/A-隐藏复盘.md"
+            (review_directory / "2026-W33.md").write_text(real_review, encoding="utf-8")
+            hidden_path = root / ".worktrees/branch/00-系统/每周复盘/2026-W33.md"
             hidden_path.parent.mkdir(parents=True)
             hidden_path.write_text(hidden_review, encoding="utf-8")
 
@@ -324,7 +342,7 @@ week: 2026-W33
             self.create_vault(root)
             review_directory = root / "00-系统/每周复盘"
             review_directory.mkdir(parents=True)
-            (review_directory / "周复盘.md").write_text(
+            (review_directory / "2026-W33.md").write_text(
                 """---
 week: 2026-W33
 ---
@@ -373,6 +391,38 @@ week: 2026-W33
         )
         self.assertEqual("题目：周复盘如何形成业务输出；来源项目：模板契约项目", data.weekly_content_derivative)
 
+    def test_weekly_review_rejects_index_and_filename_week_mismatch(self) -> None:
+        invalid_filenames = ("Index.md", "2025-W01.md")
+        for invalid_filename in invalid_filenames:
+            with self.subTest(invalid_filename=invalid_filename), tempfile.TemporaryDirectory() as temporary_directory:
+                root = Path(temporary_directory)
+                self.create_vault(root)
+                review_directory = root / "00-系统/每周复盘"
+                review_directory.mkdir(parents=True)
+                (review_directory / invalid_filename).write_text(
+                    """---
+week: 2026-W33
+---
+
+## 下周唯一业务输出
+
+- 服务项目：伪造项目
+- 解决问题：伪造问题
+- 验收标准：伪造验收
+
+## 业务派生内容
+
+- 题目：伪造题目
+- 来源项目：伪造项目
+""",
+                    encoding="utf-8",
+                )
+
+                data = collect_dashboard(root, self.today)
+
+            self.assertIsNone(data.weekly_business_output)
+            self.assertIsNone(data.weekly_content_derivative)
+
     @unittest.skipUnless(sys.platform == "win32", "directory junctions are a Windows reparse-point behavior")
     def test_weekly_review_uses_only_non_reparse_managed_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -396,7 +446,7 @@ week: 2026-W33
 - 题目：外部题目
 - 来源项目：外部项目
 """
-            (outside / "external.md").write_text(external_review, encoding="utf-8")
+            (outside / "2026-W33.md").write_text(external_review, encoding="utf-8")
             self.create_junction(root / "00-系统/每周复盘", outside)
             (root / "00-系统/旧位置复盘.md").write_text(
                 external_review.replace("外部", "旧位置"),

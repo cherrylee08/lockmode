@@ -224,7 +224,11 @@ def _lifecycle_issues(
     if knowledge_stage == "reviewed" and feedback_status != "recorded":
         issues.append(Issue("ERROR", relative_path, "INVALID_FEEDBACK_STATUS", "reviewed knowledge requires recorded feedback"))
 
-    if require_digestion_completion and knowledge_stage in DIGESTION_COMPLETE_STAGES:
+    if (
+        require_digestion_completion
+        and isinstance(knowledge_stage, str)
+        and knowledge_stage in DIGESTION_COMPLETE_STAGES
+    ):
         summary = metadata.get("summary")
         if not isinstance(summary, str) or not summary.strip():
             issues.append(Issue("ERROR", relative_path, "MISSING_DIGESTION_SUMMARY", "digested knowledge requires a summary"))

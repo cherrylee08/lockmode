@@ -114,7 +114,9 @@ def _inbox_items(root: Path, active_project_paths: ActiveProjectTargets) -> list
             continue
         metadata = parse_frontmatter(path)
         knowledge_stage = metadata.get("knowledge_stage")
-        if knowledge_stage not in (None, "") and knowledge_stage not in PENDING_INBOX_STAGES:
+        if knowledge_stage not in (None, "") and (
+            not isinstance(knowledge_stage, str) or knowledge_stage not in PENDING_INBOX_STAGES
+        ):
             continue
         captured_at = metadata.get("captured_at")
         related = metadata.get("related")
@@ -224,7 +226,7 @@ def _weekly_review_outputs(root: Path, today: date) -> tuple[str | None, str | N
     if not review_directory.is_dir():
         return None, None
     for path in safe_markdown_paths(review_directory, recursive=False):
-        if path == root / MANAGED_DASHBOARD:
+        if path.name == "Index.md" or path.name != f"{expected_week}.md":
             continue
         if parse_frontmatter(path).get("week") == expected_week:
             candidates.append(path)
