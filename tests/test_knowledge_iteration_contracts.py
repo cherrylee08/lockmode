@@ -60,6 +60,21 @@ class KnowledgeIterationContractTests(unittest.TestCase):
             self.read("10-项目/个人知识库管理系统.md"),
         )
 
+    def test_owner_facing_root_markdown_count_distinguishes_the_first_audit_cohort(self) -> None:
+        root_markdown = [
+            path
+            for path in REPOSITORY_ROOT.glob("*.md")
+            if path.name != "AGENTS.md" and path.is_file()
+        ]
+
+        self.assertEqual(63, len(root_markdown))
+        current_count = (
+            "根目录当前 Markdown：63 篇（不含系统 AGENTS.md；首轮 51 篇中已迁移 8 篇、"
+            "仍留 43 篇，首轮后新增 20 篇）"
+        )
+        self.assertIn(current_count, self.read("00-系统/健康报告.md"))
+        self.assertIn(current_count, self.read("10-项目/个人知识库管理系统.md"))
+
     def test_operation_log_keeps_4cbe676_as_exact_prefix(self) -> None:
         self.assertTrue(self.read("00-系统/log.md").startswith(self.baseline_log()))
 
