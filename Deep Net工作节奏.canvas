@@ -62,10 +62,12 @@
 		{"id":"3a891ec2c37fffde","type":"text","text":"引官网","x":760,"y":390,"width":250,"height":60},
 		{"id":"82bcc2e5ef998504","type":"text","text":"引官网","x":760,"y":480,"width":250,"height":60},
 		{"id":"7f3a72da56c7e604","type":"text","text":"卢布结算","x":480,"y":560,"width":250,"height":60},
-		{"id":"141e5a3928f21d24","x":480,"y":480,"width":250,"height":60,"type":"text","text":"加密货币"},
-		{"id":"1e4a0a2c514ab9fa","x":480,"y":390,"width":250,"height":60,"type":"text","text":"万事达/visia"},
+		{"id":"141e5a3928f21d24","type":"text","text":"加密货币","x":480,"y":480,"width":250,"height":60},
+		{"id":"1e4a0a2c514ab9fa","type":"text","text":"万事达/visia","x":480,"y":390,"width":250,"height":60},
 		{"id":"d9aaeb550de03342","type":"text","text":"找代理","x":760,"y":680,"width":250,"height":60},
-		{"id":"af618fe361a123bf","x":760,"y":590,"width":250,"height":60,"type":"text","text":""}
+		{"id":"af618fe361a123bf","type":"text","text":"","x":760,"y":590,"width":250,"height":60},
+		{"id":"46c3ce5921fda2d7","type":"file","file":"9.15一周工作内容汇总.md","x":2920,"y":-2560,"width":400,"height":400},
+		{"id":"c4d57077a8d4a3ea","type":"file","file":"DeeperNetwork-Social Media links.md","x":2920,"y":-1664,"width":400,"height":400}
 	],
 	"edges":[
 		{"id":"41636598ddd31fe8","fromNode":"c76477ce65585dcd","fromSide":"right","toNode":"c79e0dce0a1a8e9a","toSide":"left"},
