@@ -6,7 +6,7 @@ tags:
   - 账号运营
   - 内容生产
 created: 2026-07-30
-updated: 2026-08-06
+updated: 2026-09-16
 ---
 
 # AI 账号运营
@@ -49,3 +49,7 @@ updated: 2026-08-06
 ---
 
 相关：[[知识库总索引]] · [[WorkBuddy沉淀 Index]] · [[AI企业部署与创业 Index]] · [[AI短剧 Index]]
+
+## Deeper Network 产品与选题依据
+
+- [[30-资源/Deeper Network_DPN App Guide 2026_产品研究与内容选题|DPN App Guide 2026：产品研究与内容选题]] — 与现有品牌短剧框架衔接的官方 Blog 研究及教程入口。

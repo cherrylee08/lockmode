@@ -3,7 +3,7 @@ title: 资源 Index
 type: system
 status: active
 created: 2026-08-13
-updated: 2026-08-13
+updated: 2026-09-16
 ---
 
 # 资源 Index
@@ -24,3 +24,7 @@ updated: 2026-08-13
 ## 市场战略报告（2026-09-08）
 
 - [[30-资源/六壬框架拆解Deeper Network俄语市场-2026-09-08|六壬框架拆解 Deeper Network 俄语市场]] — 价值锚点、0–30/30–90 天验证、代理复制及薪资激励；判断与待核实项分别标注。
+
+## Deeper Network 产品研究与内容选题
+
+- [[30-资源/Deeper Network_DPN App Guide 2026_产品研究与内容选题|DPN App Guide 2026：产品研究与内容选题]] — 痛点地图、七条内容支柱、操作映射、Dex 短剧及后续选题库建议；官方描述与待实测效果分开标记。

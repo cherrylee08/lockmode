@@ -4,7 +4,7 @@ title: 六壬框架拆解 Deeper Network 俄语市场
 type: resource
 status: active
 created: 2026-09-08
-updated: 2026-09-08
+updated: 2026-09-16
 owner: 李大谱
 confidence: inferred
 source_refs:
@@ -197,3 +197,7 @@ tags: [DeeperNetwork, 俄语市场, 六壬框架, 增长策略, 个人能力变�
 ---
 
 来源：[大六壬分析框架](https://chatgpt.com/c/6a9ce2b8-a40c-83e9-97a6-2eca0f7a67f7)。版本：v1.0，2026-09-08。原文的主观星级不保留为量化评分；测试数量和销量示例均已标明用途。下次复查重点为产品事实、地区选择、预算与首轮验证结果。
+
+## 关联产品研究（2026-09-16 补充）
+
+- [[30-资源/Deeper Network_DPN App Guide 2026_产品研究与内容选题|DPN App Guide 2026：产品研究与内容选题]]：为人群、痛点、功能与内容钩子提供官方来源；俄语地区需求、实测与成交效果仍待验证。
