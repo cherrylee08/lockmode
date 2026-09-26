@@ -35,6 +35,8 @@ updated: 2026-09-25
 
 ## 可复用内容资产
 
+- [[Deeper社媒IP_STORY-008-Whos-Following-Me-剧情与分镜-2026-09-25]] — 追踪器视觉隐喻、57秒剧情母版、18镜竖屏分镜、Buddy伏笔与产品事实边界
+
 - [[Deeper_Telegram获客与推荐积分Bot_竞品拆解与功能草案-2026-09-25]] — OgranaNET Bot 拆解、Deeper 用户/Partner Bot 边界、邀请归因、积分账本与真实付费验证前提
 
 - [[Deeper_Telegram试用码机器人自动发码方案-2026-09-24]] — Bot 领取入口、授权后端、防重复核销、审计与接口核验清单

@@ -3,7 +3,7 @@ title: Deeper 社媒 IP 剧本库 Index
 type: script-library
 status: active
 created: 2026-09-23
-updated: 2026-09-23
+updated: 2026-09-25
 tags:
   - MOC
   - DeeperNetwork
@@ -29,9 +29,10 @@ tags:
 |---|---|---|---:|---|---|
 | DN-STORY-001 | 谁更快 / What’s Faster? | Dex 用技术自信挑战 Hank 的地球常识，输掉场面后仍嘴硬 | 已有长短版 | 已有 4 个成片；正式发布母版待唯一确认 | [[Deeper社媒IP_STORY-001-谁更快-剧情梗概]] |
 | DN-STORY-002 | Sorry Honey, I’m Abroad | Dex 用全球切换逃家务，Mary 利用每个新环境把家务逐级加码 | 约 30–60 秒 | 剧情与提示词完成；正式成片状态待核验 | [[Deeper社媒IP_STORY-002-Sorry-Honey-Im-Abroad-剧情梗概]] |
-| DN-STORY-003 | Hey, Neighbor! | Dex 连续误判派对门禁规则，连接后仍因可疑气味被贴成和狗一样的 `LOCAL` | 约 68–71 秒 | 长版剧情母版已确认；短版与产品口径待开发 | [[Deeper社媒IP_EP03-Hey-Neighbor-剧情设定-2026-09-18]] |
+| DN-STORY-003 | Hey, Neighbor! | Dex 连续误判派对门禁规则，连接后仍因可疑气味被贴成和狗一样的 `LOCAL` | 约 68–71 秒 | 长版母版、24镜竖屏导演分镜与Seedance五段提示词完成；镜头21–24待重做，产品口径待核验 | [[Deeper社媒IP_EP03-Hey-Neighbor-剧情设定-2026-09-18]] |
 | DN-STORY-004 | Ad Invasion / 推销员入侵 | 广告推销员从屏幕钻进现实；Mary 拦截广告，Hank 用“两美元鸡蛋”完成真人邻居反杀 | 30 秒 | 完整剧情已形成；视觉分镜和产品核验待完成 | [[Deeper社媒IP_广告拦截与真正邻居短剧-2026-09-19]] |
 | DN-STORY-005 | One House, Three Worlds | Dex 强迫全家共用一条路线；Mary 让不同应用各走所需路线，最后被唯一遥控器反杀 | 约 30–35 秒 | 开发草案；人物与产品细节待核验 | [[Deeper社媒IP_STORY-005-One-House-Three-Worlds-剧情草案]] |
+| DN-STORY-008 | Who’s Following Me? | Dex 将数据记录员误认成粉丝，支付信息观察让误会越界；Mary过滤追踪请求，Buddy叼走零食完成反杀 | 约 57 秒 | 剧情母版与18镜文字分镜完成；视觉分镜A/B完成，C待生成 | [[Deeper社媒IP_STORY-008-Whos-Following-Me-剧情与分镜-2026-09-25]] |
 
 ## 快速选题地图
 
@@ -42,13 +43,13 @@ tags:
 | 住宅 IP / 本地网络身份 | DN-STORY-003 | Dex、Mary、门卫、狗 | Dex 与狗获得同款 `LOCAL` 标签 |
 | 广告拦截 | DN-STORY-004 | Dex、Mary、Hank | `Now you owe your neighbor two bucks.` |
 | 智能路由 / 不同应用走不同路线 | DN-STORY-005 | Dex、Mary、Pip | 三人仍抢同一个电视遥控器 |
+| 追踪器过滤 / 隐私边界 | DN-STORY-008 | Dex、Mary、Buddy、数据记录员 | “忠实粉丝”只想叼走零食棒 |
 
 ## 待开发故事池
 
 以下只有卖点或方向，还不是完整剧情母版：
 
 - [[Deeper社媒IP_STORY-006-Buzz-Buzz-Buy-Buy-Not-Anymore-创意卡|Ad Flies / 广告苍蝇]]：对外发布主标题锁定为 **`Buzz. Buzz. Buy. Buy. Not Anymore.`**。这是后续独立单集，不与 DN-STORY-004《Ad Invasion》混用；完整剧情待开发。
-- `Who’s Following Me?`：追踪器拦截；Dex 回头发现整条街都在跟踪他。
 - `Pip vs Dad`：家长控制；Dex 定规则，Pip 找漏洞，Mary 收场。
 - 恶意网站拦截：骗子或小偷试图闯门，家庭网络门卫提前拦下。
 - 隐私保护：“互联网邻居”持续偷看生活，Dex 最后才发现。
@@ -63,6 +64,7 @@ tags:
 - DN-STORY-002 已见剧情、提示词及本地化相关资产，但正式母版视频状态仍需核验。
 - DN-STORY-003、004、005 的产品表达均需在发布前按当前 App、硬件与支持范围复核。
 - DN-STORY-006 目前只锁定标题和核心隐喻，尚未形成完整剧情、角色冲突或产品演示方案。
+- 工作区生产文件仍使用 `EP05`、`EP06` 等阶段性编号；发布排期正式确认前，以本页稳定 STORY ID 检索和交接。
 - Pip 的人物功能已确定，最终视觉仍未锁定；DN-STORY-005 制作前必须先锁定参考图。
 
 ## 新故事入库模板
