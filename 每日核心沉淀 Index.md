@@ -5,10 +5,12 @@ tags:
   - 每日沉淀
   - 工作复盘
 created: 2026-08-04
-updated: 2026-09-25
+updated: 2026-09-27
 ---
 
 # 每日核心沉淀
+
+- [[每日核心沉淀 2026-09-27]] — Deeper 俄区社媒运营会议结论，聚焦 VK/TikTok、Telegram MVP 与四组验证实验
 
 - [[每日核心沉淀 2026-09-25]] — Telegram Bot 与推荐积分、Deeper 剧情分镜生产、Seedance 白模成本分级
 
