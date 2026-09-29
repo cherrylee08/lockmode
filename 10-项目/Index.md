@@ -3,7 +3,7 @@ title: 项目 Index
 type: system
 status: active
 created: 2026-08-13
-updated: 2026-08-13
+updated: 2026-09-18
 ---
 
 # 项目 Index
@@ -14,6 +14,7 @@ updated: 2026-08-13
 ## 当前内容
 
 - [[10-项目/个人知识库管理系统|个人知识库管理系统]]：六框架知识库的建设进度、决策、风险与下一步。
+- [[10-项目/Deeper Network品牌内容与DPN增长项目|Deeper Network 品牌内容与 DPN 增长项目]]：品牌短剧、DPN 内容转译、样片生产与发布验证的总控页。
 
 ## 待处理
 

@@ -7,7 +7,7 @@ tags:
   - 试用转化
   - 俄语市场
 created: 2026-09-25
-updated: 2026-09-25
+updated: 2026-09-28
 status: 讨论草案，未进入实施
 ---
 
@@ -193,7 +193,64 @@ Telegram 无法自行知道用户是否在 App Store 或 Google Play 完成购�
 - 俄罗斯的 VPN/受限资源访问工具广告规则在 2025 年已有重大变化；正式上线前需要俄罗斯当地法律意见，确认产品表述、Telegram 渠道、合作伙伴行为和奖励合同。
 - 合规结论尚未完成，不把当前讨论当成法律意见。
 
-## 九、下一轮需要继续决定
+## 九、Telegram Mini App 可行性与产品边界（2026-09-28）
+
+### 已确认的技术边界
+
+Telegram Mini App 是运行在 Telegram WebView 中的 HTTPS Web App，通过 Bot、Telegram JavaScript API 和自有后端完成身份、界面与业务交互。它不是安装在系统里的原生网络客户端，因此不能获得 iOS/Android 的系统级网络权限，也不能在 Mini App 关闭后继续建立和维持完整 DPN 隧道。
+
+适合放在 Mini App 中的能力：
+
+- Telegram 身份登录并绑定 DPN 账号。
+- 展示试用、订阅、设备、节点和流量状态。
+- 选择推荐国家、线路或路由策略，并保存到后端。
+- 跳转或唤起原生 DPN App；未安装时进入官方下载页。
+- 领取试用、邀请码、渠道归因、客服和到期/设备异常提醒。
+- 在具备安全远程管理 API 的前提下，查看或管理 Deeper 硬件。
+
+不能由 Mini App 独立完成的能力：
+
+- 在手机系统层建立 DPN/VPN 隧道。
+- 接管 Telegram、TikTok、YouTube 或其他 App 的全部流量。
+- Mini App 关闭后继续后台路由。
+- 完整替代 iOS/Android 原生 DPN App。
+
+### 推荐产品形态
+
+将产品定义为 **Telegram DPN Control Center**，而不是“Telegram 版完整 DPN”：
+
+```text
+Telegram 用户
+    ↓
+DPN Bot / Mini App（登录、试用、状态、配置、邀请）
+    ↓
+DPN 账号与配置后端
+    ↓
+原生 DPN App / Deeper 硬件（实际路由与连接）
+```
+
+Telegram 是入口、驾驶舱和增长承接层；原生 App/硬件是执行层。若在 Telegram 内销售数字订阅，需要单独核验 Telegram Stars 规则，不能默认沿用官网、信用卡或应用商店结算。
+
+### 建议首版范围
+
+1. Telegram 身份登录并绑定现有 DPN 账号。
+2. 展示试用、订阅、设备和节点状态。
+3. 选择推荐国家/线路并保存配置。
+4. “打开 DPN App”或“下载 DPN App”。
+5. 邀请码、渠道归因和客服入口。
+
+首版暂不做支付、硬件深度控制，也不宣传“在 Telegram 内一键连接完整 DPN”。优先验证 Mini App 打开率、DPN App 下载率、账号激活率、首次连接成功率、7 日留存和试用转付费。
+
+### 内部待确认前提
+
+- DPN 账号系统是否提供可用 API。
+- 线路、节点和路由策略是否支持跨端配置同步。
+- 原生 App 是否具备 App Link / Universal Link，并能安全接收配置。
+- Deeper 硬件是否提供安全的远程管理 API。
+
+这四项决定首版只能是获客页，还是能够成为真正的 DPN 控制台。在接口核验完成前，以上控制能力均属于方案，不是已交付事实。
+
+## 十、下一轮需要继续决定
 
 1. Deeper App 是否已有统一账号 ID，以及后端能否接收并验证 Apple/Google 的购买、续费和退款事件。
 2. 试用采用现有 7 天，还是新增 14 天活动。
