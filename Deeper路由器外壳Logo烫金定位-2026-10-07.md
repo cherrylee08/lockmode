@@ -7,8 +7,8 @@ tags:
   - Logo
   - 烫金
 created: 2026-10-07
-updated: 2026-10-07
-status: 位置建议已形成，待实物与工厂打样确认
+updated: 2026-10-08
+status: CAD 生产稿 REV B 已形成，待实物与工厂打样确认
 ---
 
 # Deeper 路由器外壳 Logo 烫金定位
@@ -18,6 +18,26 @@ status: 位置建议已形成，待实物与工厂打样确认
 将纯图形 Logo 放在路由器上盖的**中央连续主面**，顺着机身纵向放置。在不跨明显折棱、不侵入前缘指示灯安全区的前提下尽量放大。
 
 推荐先做两档比例样：Logo 宽度约占可用连续平面宽度的 55% 与 65%。这里的比例是照片评审建议，不是最终工程尺寸。
+
+## 2026-10-08｜CAD 生产稿与方向校正
+
+- 当前应交付工厂的文件是 `C:\Users\lee\Documents\ChatGPT\DeeperNetwork\output\pdf\Deeper_Router_halfstripe_black_screenprint_placement_A3_REV_B.pdf`。
+- 旧的 `Deeper_Router_halfstripe_black_screenprint_placement_A3.pdf` 及 REV A 方向错误/镜像，**不得用于生产**。
+- REV B 统一为“左半竖纹”方向；第 2 页为 52 mm 矢量 Logo，并保留专色结构，便于印刷端读取。
+- 独立矢量文件：`Deeper_halfstripe_logo_52mm_vector_REV_B.svg`。
+- 预览文件：`Deeper_Router_halfstripe_black_screenprint_REV_B_preview.png`。
+
+### 视觉居中测算
+
+PDF 图形分析显示：52 mm 外框的几何中心与金色墨区的视觉质心约相差 5.4 mm，墨区偏右。若目标是按印刷面积的视觉重量居中，可先将整组 Logo 左移约 5.4 mm，再与几何居中版并排打样。
+
+这是 **AI 测算建议**，尚未得到用户、结构工程师或工厂确认；不能直接替代机壳基准、丝印定位和实体观感评审。
+
+## 2026-10-08｜概念方案资产
+
+- 全条纹 Logo：`output\router_logo_options\full_striped_logo_concept\`，包含顶视、角度、摄影棚效果图和提示词。
+- 小 Logo + `DPN Router Lite` 锁定组合：`output\router_logo_options\router_lite_lockup\`，包含顶视、角度、摄影棚效果图和提示词。
+- 上述效果图用于方案比较与沟通，不替代 REV B 生产稿。
 
 ## 评审依据
 
@@ -37,12 +57,13 @@ status: 位置建议已形成，待实物与工厂打样确认
 
 - 位置示意图：`C:\Users\lee\Documents\ChatGPT\DeeperNetwork\outputs\router_hotfoil_position_concept.jpg`
 - 源 Logo：用户提供的最新版 AI 文件；示意图复用了项目中已确认的纯图形预览，没有修改 Logo 轮廓。
+- CAD 生产稿与矢量、预览文件见上方“CAD 生产稿与方向校正”。
 
 ## 量产前验证清单
 
-1. 测量连续可加工主面的真实宽高与曲率。
+1. 测量连续可加工主面的真实宽高与曲率，并确认 REV B 的基准方向。
 2. 向工厂确认模具分型线、可热压范围、最小安全边和夹具方向。
-3. 输出 55% 与 65% 两档 1:1 定位稿，不同时改动位置、尺寸和金色色号。
+3. 输出 55% 与 65% 两档 1:1 定位稿；在最终尺寸档中再单独比较几何居中与左移约 5.4 mm，不同时改动尺寸和金色色号。
 4. 做实物烫金样，检查附着、耐磨、折棱附近均匀性、套准和不同角度反光。
 5. 样件签字确认后再锁定量产尺寸、位置坐标和工艺参数。
 
@@ -54,4 +75,4 @@ status: 位置建议已形成，待实物与工厂打样确认
 
 ---
 
-相关：[[AI账号运营 Index]] · [[Deeper_Router_Lite包装展开与印前交付-2026-09-23]] · [[每日核心沉淀 2026-10-07]] · [[知识库总索引]]
+相关：[[AI账号运营 Index]] · [[Deeper_Router_Lite包装展开与印前交付-2026-09-23]] · [[每日核心沉淀 2026-10-08]] · [[每日核心沉淀 2026-10-07]] · [[知识库总索引]]
