@@ -3,7 +3,7 @@ title: 资源 Index
 type: system
 status: active
 created: 2026-08-13
-updated: 2026-09-16
+updated: 2026-11-17
 ---
 
 # 资源 Index
@@ -28,3 +28,7 @@ updated: 2026-09-16
 ## Deeper Network 产品研究与内容选题
 
 - [[30-资源/Deeper Network_DPN App Guide 2026_产品研究与内容选题|DPN App Guide 2026：产品研究与内容选题]] — 痛点地图、七条内容支柱、操作映射、Dex 短剧及后续选题库建议；官方描述与待实测效果分开标记。
+
+## VK 搜索获客证据（2026-11-17）
+
+- [[30-资源/VK搜索获客复盘证据索引-2026-11-17]]：原始截图、两份ZIP、每日口述数据及工作底稿快照。
