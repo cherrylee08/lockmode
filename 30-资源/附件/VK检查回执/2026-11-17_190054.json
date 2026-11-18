@@ -1,0 +1,23 @@
+{
+  "automation_id": "vk-2",
+  "check_in_beijing": "2026-11-17 19:00:54",
+  "sop_version": "v0.5-parallel-observation",
+  "backup_checks": {
+    "workspace_backup": true,
+    "vault_backup": true
+  },
+  "latest_snapshot": "E:\\李大谱的小脑瓜\\30-资源\\附件\\VK备份\\2026-11-17_182354_VK正文检索候选归档.zip",
+  "account_page_check": "未执行，提醒模式不自动登录或争用桌面",
+  "new_exports": "未取得",
+  "new_facts_since_last_archive": false,
+  "pending": [
+    "11号名称前后全文及修改时刻截图",
+    "13号简介前后全文及修改时刻截图",
+    "固定条件5词结果及最新完整MSK窗口Visits/来源"
+  ],
+  "next_reviews": [
+    "2026-11-21 19:00",
+    "2026-11-25 19:00",
+    "2026-12-02 19:00"
+  ]
+}
