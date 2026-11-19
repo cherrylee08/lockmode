@@ -1,0 +1,20 @@
+{
+  "automation_id": "vk-2",
+  "check_in_beijing": "2026-11-18 19:00:38",
+  "sop_version": "v0.5-parallel-observation",
+  "backup_checks": {
+    "workspace_backup": true,
+    "vault_backup": true
+  },
+  "latest_snapshot": "E:\\李大谱的小脑瓜\\30-资源\\附件\\VK备份\\2026-11-17_182354_VK正文检索候选归档.zip",
+  "account_page_check": "未执行；按提醒范围不自动登录、不争用桌面",
+  "new_exports": "本聊天及归档未新增",
+  "new_user_facts_since_last_archive": false,
+  "today_observation": "11/18为完整观察窗口第1日，当前莫斯科14:00，尚未结束；最近完整日11/17为变更过渡日，不当第1完整观察日",
+  "pending": [
+    "11号名称前后全文和13号简介前后全文/时刻截图",
+    "按固定5词记录今日搜索位置、可达与限制",
+    "保存11/17完整MSK日Visits/来源，明确为过渡日；11/18完整数据最早北京时间11/19 05:00后可取"
+  ],
+  "next_review": "2026-11-21 19:00，第3完整日复盘"
+}
