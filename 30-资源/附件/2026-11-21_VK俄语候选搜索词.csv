@@ -1,0 +1,38 @@
+﻿priority_research_only,cluster,query,evidence,usage_limit,vk_volume,yandex_volume
+P1,obhod,обход,用户截图обход；其他为文档措辞/语义扩展,可见性测试，非真实搜索频次,未取得,未取得
+P1,obhod,обход блокировок,用户截图обход；其他为文档措辞/语义扩展,可见性测试，非真实搜索频次,未取得,未取得
+P1,obhod,обход ограничений,用户截图обход；其他为文档措辞/语义扩展,可见性测试，非真实搜索频次,未取得,未取得
+P1,cyrillic_vpn,впн,截图ВПН+语义组合,可用性不能直接承诺,未取得,未取得
+P1,cyrillic_vpn,рабочий впн,截图ВПН+语义组合,可用性不能直接承诺,未取得,未取得
+P1,cyrillic_vpn,впн для андроид,截图ВПН+语义组合,可用性不能直接承诺,未取得,未取得
+P1,cyrillic_vpn,впн для айфона,截图ВПН+语义组合,可用性不能直接承诺,未取得,未取得
+P1,support,как подключить впн,支持意图候选，未取得搜索词日志,正文帮助优先,未取得,未取得
+P1,support,настройка впн,支持意图候选，未取得搜索词日志,正文帮助优先,未取得,未取得
+P1,support,не работает впн,支持意图候选，未取得搜索词日志,正文帮助优先,未取得,未取得
+P2,access,доступ к сайтам,俄语场景候选,需准确对应实际服务,未取得,未取得
+P2,access,доступ к заблокированным сайтам,俄语场景候选,需准确对应实际服务,未取得,未取得
+P2,access,разблокировка сайтов,俄语场景候选,需准确对应实际服务,未取得,未取得
+P2,proxy,прокси,截图+产品类别/语义扩展,非通用VPN同义词,未取得,未取得
+P2,proxy,прокси для телеграм,截图+产品类别/语义扩展,非通用VPN同义词,未取得,未取得
+P2,proxy,настройка прокси,截图+产品类别/语义扩展,非通用VPN同义词,未取得,未取得
+P2-conditional,allowlist,обход белых списков,Amnezia文档与截图；非词频,DPN能力未证实，不改名承诺,未取得,未取得
+P2-conditional,allowlist,обход бс,Amnezia文档与截图；非词频,DPN能力未证实，不改名承诺,未取得,未取得
+P2-conditional,allowlist,интернет при белых списках,Amnezia文档与截图；非词频,DPN能力未证实，不改名承诺,未取得,未取得
+P2-research,jamming,обход глушилок,截图部分措辞+扩展,物理断网不可由软件保证恢复,未取得,未取得
+P2-research,jamming,интернет без глушилок,截图部分措辞+扩展,物理断网不可由软件保证恢复,未取得,未取得
+P2-research,jamming,глушилки,截图部分措辞+扩展,物理断网不可由软件保证恢复,未取得,未取得
+P3-other-product,happ,happ,截图HAPP/КЛЮЧИ与Happ官方说明；组合候选,不以兼容未知的竞品词命名DPN,未取得,未取得
+P3-other-product,happ,хапп,截图HAPP/КЛЮЧИ与Happ官方说明；组合候选,不以兼容未知的竞品词命名DPN,未取得,未取得
+P3-other-product,happ,ключи happ,截图HAPP/КЛЮЧИ与Happ官方说明；组合候选,不以兼容未知的竞品词命名DPN,未取得,未取得
+P3-other-product,happ,подписка happ,截图HAPP/КЛЮЧИ与Happ官方说明；组合候选,不以兼容未知的竞品词命名DPN,未取得,未取得
+P3-other-product,happ,конфиг happ,截图HAPP/КЛЮЧИ与Happ官方说明；组合候选,不以兼容未知的竞品词命名DPN,未取得,未取得
+P3-other-product,protocol,vless,其他产品/协议候选,仅分类与比较，不冒充销售,未取得,未取得
+P3-other-product,protocol,ключи vless,其他产品/协议候选,仅分类与比较，不冒充销售,未取得,未取得
+P3-other-product,protocol,amnezia,其他产品/协议候选,仅分类与比较，不冒充销售,未取得,未取得
+P3-other-product,protocol,outline,其他产品/协议候选,仅分类与比较，不冒充销售,未取得,未取得
+P3-other-product,protocol,wireguard,其他产品/协议候选,仅分类与比较，不冒充销售,未取得,未取得
+P3-other-product,protocol,анонимайзер,其他产品/协议候选,仅分类与比较，不冒充销售,未取得,未取得
+brand-separate,brand,DPN,自有品牌与意图扩展,不与非品牌主指标混算,未取得,未取得
+brand-separate,brand,Deeper Network,自有品牌与意图扩展,不与非品牌主指标混算,未取得,未取得
+brand-separate,brand,DPN настройка,自有品牌与意图扩展,不与非品牌主指标混算,未取得,未取得
+brand-separate,brand,DPN скачать,自有品牌与意图扩展,不与非品牌主指标混算,未取得,未取得
