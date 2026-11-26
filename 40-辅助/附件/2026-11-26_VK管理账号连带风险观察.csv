@@ -1,0 +1,5 @@
+case_id,env,actual_account_alias,community_id_confirmed_for_this_event,role_at_event,account_observed_at_bjt,login_state,posting_state,management_state,account_restriction_notice,owned_distinct_communities_total,owned_global_blocks,owned_geo_blocks,owned_search_exclusions,admin_only_restricted_communities,other_communities_state,evidence_notes
+R16,16,,,unknown,,unknown,unknown,unknown,,,,,,,unknown,pending_owner_mapping_and_actual_account_observation
+R09,9,,242064309,unknown,,unknown,unknown,unknown,,,,,,,unknown,pending_owner_mapping_and_actual_account_observation
+R17,17,,,unknown,,unknown,unknown,unknown,,,,,,,unknown,pending_owner_mapping_and_actual_account_observation
+R06,6,,,unknown,,unknown,unknown,unknown,,,,,,,unknown,pending_owner_mapping_and_actual_account_observation

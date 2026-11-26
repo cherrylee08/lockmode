@@ -1,0 +1,5 @@
+case_id,report_date_bjt,env,label,historical_shortname,historical_community_id,identity_status,restriction,evidence,first_report_date,exact_restriction_time,owner_account_alias,owner_account_status
+R16,2026-11-26,16,搞笑号,vpndpn4,,historical_mapping,search_excluded,2026-11-17_live_notice_plus_user_report,2026-11-17,,,unknown
+R09,2026-11-26,9,神奇动物,vpndpn8,242064309,historical_verified,blocked_scope_unknown,user_report_not_live_verified,2026-11-25,,,unknown
+R17,2026-11-26,17,麦克账号下一个社群,vpndpn5,,current_page_identity_pending,blocked_scope_unknown,user_report_not_live_verified,2026-11-26,,,unknown
+R06,2026-11-26,6,游戏新闻,,243248460,historical_mapping_current_pending,blocked_scope_unknown,user_report_not_live_verified,2026-11-26,,,unknown
